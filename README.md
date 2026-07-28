@@ -22,8 +22,8 @@ SPOTIFY_CLIENT_ID=xxx SPOTIFY_CLIENT_SECRET=yyy SPOTIFY_REFRESH_TOKEN=zzz \
 # Resume after a rate-limit exit (the default in CI)
 python spotify-recent-albums.py --resume --days 365
 
-# Conservative run with batching
-python spotify-recent-albums.py --resume --batch-size 5 --min-request-interval 20
+# Conservative run with request throttling
+python spotify-recent-albums.py --resume --min-request-interval 20
 ```
 
 ### CLI Flags
@@ -33,7 +33,6 @@ python spotify-recent-albums.py --resume --batch-size 5 --min-request-interval 2
 | `--resume` | off | Resume a previously interrupted run |
 | `--days` | 365 | Look back N days for new releases |
 | `--interval-days` | 7 | Check each artist every N days |
-| `--batch-size` | 5 | Max artists to process per run |
 | `--min-request-interval` | 20 | Minimum seconds between API calls (0 to disable) |
 | `--market` | US | ISO 3166-1 alpha-2 country code |
 | `--json` | off | Output raw JSON instead of markdown |
@@ -58,7 +57,7 @@ This reproduces the original failure: 82 artists, a small dev-mode daily quota t
 # With batching enabled (should avoid hitting the quota):
 python simulate_workflow_harness.py \
   --num-artists 82 --daily-quota 60 --days-to-simulate 20 --fresh-state \
-  --script-args "--batch-size 5 --min-request-interval 0"
+  --script-args "--min-request-interval 0"
 ```
 
 (`--min-request-interval 0` keeps the simulated test fast; use `20` for production.)
