@@ -1,0 +1,3 @@
+# State file is committed to the data branch, not main.
+# The workflow copies it between branches; do not commit it to main.
+spotify-state.json
