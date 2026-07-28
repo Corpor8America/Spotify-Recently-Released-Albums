@@ -1001,5 +1001,7 @@
     }
   },
   "in_progress": null,
-  "rate_limits": {}
+  "rate_limits": {
+    "GET /artists/{id}/albums": 1785292069
+  }
 }
