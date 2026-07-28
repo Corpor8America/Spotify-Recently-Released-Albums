@@ -25,8 +25,16 @@ jobs:
   fetch-albums:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout main (script + workflow)
         uses: actions/checkout@v4
+        with:
+          path: main
+
+      - name: Checkout data (state file)
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -36,7 +44,14 @@ jobs:
       - name: Install dependencies
         run: python -m pip install requests
 
+      - name: Sync state file into script's working directory
+        run: |
+          if [ -f data/spotify-state.json ]; then
+            cp data/spotify-state.json main/spotify-state.json
+          fi
+
       - name: Fetch recent albums
+        working-directory: main
         env:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
@@ -48,12 +63,14 @@ jobs:
           PYTHONUNBUFFERED=1 python -u spotify-recent-albums.py --resume --days "$DAYS" \
             --min-request-interval "$MIN_INTERVAL"
 
-      - name: Commit updated state
+      - name: Commit updated state to data branch
         if: always()
         run: |
+          cp main/spotify-state.json data/spotify-state.json
+          cd data
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add spotify-state.json
           git diff --staged --quiet || git commit -m "Update Spotify tracking state [skip ci]"
-          git pull --rebase
-          git push
+          git pull --rebase origin data
+          git push origin HEAD:data
