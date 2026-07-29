@@ -114,11 +114,11 @@
     },
     "6mdiAmATAx73kdxrNrnlao": {
       "name": "Iron Maiden",
-      "last_checked": "2026-07-26T03:51:38.853490+00:00"
+      "last_checked": "2026-07-29T08:42:33.378723+00:00"
     },
     "7k29FbDq69ju2fe6zTskxY": {
       "name": "Orbit Culture",
-      "last_checked": "2026-07-26T03:51:38.853490+00:00"
+      "last_checked": "2026-07-29T08:42:33.378723+00:00"
     },
     "0L8ExT028jH3ddEcZwqJJ5": {
       "name": "Red Hot Chili Peppers",
@@ -581,7 +581,6 @@
       "url": "https://open.spotify.com/album/1ovzOV64ES8l2X7t1iIhEO",
       "total_tracks": 10,
       "first_seen": "2026-07-26T03:51:38.853490+00:00",
-      "added_to_playlist": true,
       "auto_excluded": false,
       "manual_override": null
     },
