@@ -1204,7 +1204,7 @@
       "total_tracks": 15,
       "first_seen": "2026-07-30T20:37:15.741059+00:00",
       "auto_excluded": false,
-      "manual_override": null,
+      "manual_override": false,
       "added_to_playlist": true,
       "track_uris": [
         "spotify:track:6UJyb47fMXXEoRJu9A4KdV",
