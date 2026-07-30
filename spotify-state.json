@@ -367,6 +367,42 @@
     "7dGJo4pcD2V6oG8kP0tJRR": {
       "name": "Eminem",
       "last_checked": "2026-07-30T08:42:14.440277+00:00"
+    },
+    "0krXCIkthz13P8o0v2tksH": {
+      "name": "Ensiferum",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "6ZhMLSh6Zx7EzqOPJBvkbr": {
+      "name": "God Dethroned",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "0kO2SRhHlmMIeyJHfHy3c9": {
+      "name": "Chimaira",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "1yfiDL3YUEJlQCgb5Pun6g": {
+      "name": "Primal Fear",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "5K5BUrOZf9wAF7Wb7XMwhf": {
+      "name": "Crossbreed",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "3JFsVIxOn7STeilPICkkB2": {
+      "name": "Lamb of God",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "17bYSQ9ZRnreVnJjE5X2x6": {
+      "name": "Moonspell",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "79el7mcHYhXYW3Zek21i0L": {
+      "name": "DevilDriver",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
+    },
+    "13dxEWLoiRvGU1MK4nVUj4": {
+      "name": "Mob Rules",
+      "last_checked": "2026-07-30T20:37:15.741059+00:00"
     }
   },
   "known_albums": {
@@ -1058,6 +1094,189 @@
       "first_seen": "2026-07-30T08:42:14.440277+00:00",
       "auto_excluded": true,
       "manual_override": null
+    },
+    "63teuPUYwqdW3KcEfiSCyd": {
+      "artist": "Chimaira",
+      "artist_id": "0kO2SRhHlmMIeyJHfHy3c9",
+      "name": "Creepers, Vol. 1",
+      "type": "album",
+      "release_date": "2025-10-31",
+      "url": "https://open.spotify.com/album/63teuPUYwqdW3KcEfiSCyd",
+      "total_tracks": 8,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:1obRhNcb5VfbDtSbolPPlc",
+        "spotify:track:2a6U8z16vDUOmJRk1fyj2R",
+        "spotify:track:3GXMUncxlw67A6ybrAMyqa",
+        "spotify:track:4cYB44HuQvGhQ4UP6JQWfF",
+        "spotify:track:7h4byD4tutT2m2IKi3BppC",
+        "spotify:track:1KuGMSKoIHQmlqfRRUPnOR",
+        "spotify:track:13O9atJierkJIor0gvSY3o",
+        "spotify:track:3qp6zxCJKes5AbQcYxwree"
+      ]
+    },
+    "5RvTRqpErJpEhO2Rt9hYml": {
+      "artist": "Primal Fear",
+      "artist_id": "1yfiDL3YUEJlQCgb5Pun6g",
+      "name": "Domination",
+      "type": "album",
+      "release_date": "2025-09-05",
+      "url": "https://open.spotify.com/album/5RvTRqpErJpEhO2Rt9hYml",
+      "total_tracks": 13,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:2IjnQX5XVEdcwO2JjofcyF",
+        "spotify:track:4VluTjykR2imjBfzp0AU4Y",
+        "spotify:track:69tpHGcHZsUmR2c6Jnleje",
+        "spotify:track:6hviGL6jKTypFG5AuqREAG",
+        "spotify:track:2EtC3MqlWjMtJLeDw3keJ6",
+        "spotify:track:5dJ3ArG1sp9FFBHbqCdDdh",
+        "spotify:track:4JgcHVUpjz2tZSxG4EVFW4",
+        "spotify:track:08eOdl5q7cBBUZNnaiTXt8",
+        "spotify:track:3ex61sCoynsH3BCvgf0Wpj",
+        "spotify:track:0Oavy6Zl3TaffD9hjQieA7",
+        "spotify:track:00pAVdJu8ZfFstDXrgnFKK",
+        "spotify:track:3OGRDM5cmxMEHbvaReXyQk",
+        "spotify:track:0XDdcEMuk3COvDPUw1aTvd"
+      ]
+    },
+    "5aI0bwD4XS3UGMP4Kx4wNl": {
+      "artist": "Lamb of God",
+      "artist_id": "3JFsVIxOn7STeilPICkkB2",
+      "name": "Into Oblivion",
+      "type": "album",
+      "release_date": "2026-03-13",
+      "url": "https://open.spotify.com/album/5aI0bwD4XS3UGMP4Kx4wNl",
+      "total_tracks": 10,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:6Jj28kSur0NeipfKscujKa",
+        "spotify:track:3LMoseQyAIFc0C6CTlbDDZ",
+        "spotify:track:386p62g9kgvjExIVOKcHpP",
+        "spotify:track:7jmKRXiXft6Lz2HHh9vaWP",
+        "spotify:track:1vDW8pYIFti2WOAZex5V5J",
+        "spotify:track:0i3gZrr7j8WYvjDbhcR1oB",
+        "spotify:track:2k5xRkoaO5NGKzDY1mmbS3",
+        "spotify:track:1HiVJsJCmgoc4o6lGiP9JY",
+        "spotify:track:6hAvi8AqchZRNUyp3gDqAB",
+        "spotify:track:7IDT6DYMpKQEnESCLKXP9l"
+      ]
+    },
+    "6IVND83ocYfF1cwMDaAHXc": {
+      "artist": "Moonspell",
+      "artist_id": "17bYSQ9ZRnreVnJjE5X2x6",
+      "name": "Far From God",
+      "type": "album",
+      "release_date": "2026-07-03",
+      "url": "https://open.spotify.com/album/6IVND83ocYfF1cwMDaAHXc",
+      "total_tracks": 8,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:6ZtxNDISRGoo8GrCNTmu8R",
+        "spotify:track:5tRdZcW0CbHYK03sBldgeH",
+        "spotify:track:7KhO4PPCe4XryFkbJUJhpN",
+        "spotify:track:3TewLoCqcQI4xTHUCY4moX",
+        "spotify:track:6K5N9hejav24vScIxQAfDO",
+        "spotify:track:0QhvfCRzRSQoxunsRB18i6",
+        "spotify:track:50nUz6tiJIv3OnkHfsDuv4",
+        "spotify:track:3O0K4gXJ0NDl1WXQr4LMLN"
+      ]
+    },
+    "1UmNzZcrjZKN83x7D4wIo5": {
+      "artist": "Moonspell",
+      "artist_id": "17bYSQ9ZRnreVnJjE5X2x6",
+      "name": "Opus Diabolicum - The Orchestral Live Show",
+      "type": "album",
+      "release_date": "2025-10-31",
+      "url": "https://open.spotify.com/album/1UmNzZcrjZKN83x7D4wIo5",
+      "total_tracks": 15,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:6UJyb47fMXXEoRJu9A4KdV",
+        "spotify:track:3Vatar5n76oqzVST7odNDZ",
+        "spotify:track:5t4kEuYPvbMqB4F3glgZBt",
+        "spotify:track:18JEPIsAZp8sIeLNSIZeHQ",
+        "spotify:track:2Pt8MUCPkIL7cV8gxlBWTC",
+        "spotify:track:3AReWC4EQvm5ZalexjJbQU",
+        "spotify:track:5SJN6KUgWNntykFgKPtUkK",
+        "spotify:track:2FwfkG0sgR6v9eTHokwstb",
+        "spotify:track:5uEKOzJDIf3y3Fmnp6kMYk",
+        "spotify:track:5yltvUk3NK56RXBvFtfCzS",
+        "spotify:track:02nW22jJ8JTMlbsCyVNiBb",
+        "spotify:track:3GSXu4lUJoRHAqTkXlvGsJ",
+        "spotify:track:0yGo5N8UaLqkNodAOVxaqW",
+        "spotify:track:3Pq8Hf7AevFmEFGYwnc20L",
+        "spotify:track:2GPrSi5moXra79lS4zvf5V"
+      ]
+    },
+    "4edSFAqCClUwSmgeAouR12": {
+      "artist": "DevilDriver",
+      "artist_id": "79el7mcHYhXYW3Zek21i0L",
+      "name": "Strike and Kill",
+      "type": "album",
+      "release_date": "2026-07-10",
+      "url": "https://open.spotify.com/album/4edSFAqCClUwSmgeAouR12",
+      "total_tracks": 13,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:4SQyrdhBJaOS1Rm5DdG8c1",
+        "spotify:track:6HqBnJydZ7hGP9Z84VeUZu",
+        "spotify:track:0hGCzgZIFELWikdga55FHh",
+        "spotify:track:20UBCRfcTVUcxMCO2u5TeH",
+        "spotify:track:7dP3ZTCQjhGlVrQTkMYk8W",
+        "spotify:track:4nvYWcd6Po2eSKePdZ1A7t",
+        "spotify:track:5bUsZjoTusnQxHPEuYAay9",
+        "spotify:track:4Ewq4FMBhZdoOo6VmTBRTb",
+        "spotify:track:4EDKURJ5kgWF8k535eqFpf",
+        "spotify:track:4NAH2SeTlIrzH6Yuw0bk5D",
+        "spotify:track:2xvLB7QqKsbUGzd0WqiG6E",
+        "spotify:track:3vHGBfkxnaRYQJ5FLuQFJg",
+        "spotify:track:5vQZqsWigfxm4RxEc40hZS"
+      ]
+    },
+    "5IMfS7ZhS4NNuy2Pb5DPph": {
+      "artist": "Mob Rules",
+      "artist_id": "13dxEWLoiRvGU1MK4nVUj4",
+      "name": "Rise Of The Ruler",
+      "type": "album",
+      "release_date": "2025-08-22",
+      "url": "https://open.spotify.com/album/5IMfS7ZhS4NNuy2Pb5DPph",
+      "total_tracks": 11,
+      "first_seen": "2026-07-30T20:37:15.741059+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:4WeQZZK6licTNw5sYsmALN",
+        "spotify:track:6rpYVYxUVWMbdxtVJnOjbc",
+        "spotify:track:3f4A11ARusgIZkSoB3Uf6P",
+        "spotify:track:4eNyxU8aHY7sJYGQ73dns4",
+        "spotify:track:3ezsAjSGIAKHGUc0ATywSc",
+        "spotify:track:40MqX9sP02QgnagVSIurli",
+        "spotify:track:3xrbq9ytyVcxHJWEuI9f5a",
+        "spotify:track:1MEtgF2yTpVuaPZcWOj0PG",
+        "spotify:track:2xghkdZOiGW4V1EfKS47uo",
+        "spotify:track:2577MDqiPVuDiZg5R4MPrh",
+        "spotify:track:5fTQw95qAmEMfMiLvkdLST"
+      ]
     }
   },
   "in_progress": null,
