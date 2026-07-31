@@ -96,6 +96,7 @@ class _State:
         self.artists = [_make_artist(i) for i in range(num_artists)]
         # track uris per album, generated lazily/deterministically
         self.playlist_tracks = []  # list of track uris currently "in" the mock playlist
+        self.created_playlists = []  # playlists created via POST /v1/users/{id}/playlists
 
         # Per-artist overrides for the generated catalog.
         self.artist_release_dates = {}  # artist_id -> release date string
@@ -112,6 +113,7 @@ class _State:
                 "total_requests": self.total_requests,
                 "request_count_since_reset": self.request_count_since_reset,
                 "playlist_track_count": len(self.playlist_tracks),
+                "created_playlist_ids": [p["id"] for p in self.created_playlists],
             }
 
 
@@ -208,7 +210,9 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(status, body, headers)
             return
 
-        if path == "/v1/me/following":
+        if path == "/v1/me":
+            self._handle_me()
+        elif path == "/v1/me/following":
             self._handle_following(qs)
         elif path.startswith("/v1/artists/") and path.endswith("/albums"):
             artist_id = path.split("/")[3]
@@ -280,6 +284,22 @@ class _Handler(BaseHTTPRequestHandler):
             return
 
         # NOTE: /items, not /tracks -- matches Spotify's Feb 2026 migration.
+        if path.startswith("/v1/users/") and path.endswith("/playlists"):
+            body = json.loads(raw_body or b"{}")
+            playlist_id = f"playlist-{len(self.state.created_playlists) + 1:03d}"
+            with self.state.lock:
+                self.state.created_playlists.append({
+                    "id": playlist_id,
+                    "name": body.get("name"),
+                })
+            self._send_json(201, {
+                "id": playlist_id,
+                "name": body.get("name"),
+                "public": body.get("public", False),
+                "external_urls": {"spotify": f"https://open.spotify.com/playlist/{playlist_id}"},
+            })
+            return
+
         if path.startswith("/v1/playlists/") and path.endswith("/items"):
             body = json.loads(raw_body or b"{}")
             uris = body.get("uris", [])
@@ -319,6 +339,13 @@ class _Handler(BaseHTTPRequestHandler):
         self._send_json(404, {"error": {"status": 404, "message": "not found"}})
 
     # ---- endpoint implementations -----------------------------------
+
+    def _handle_me(self):
+        self._send_json(200, {
+            "id": "mock-user",
+            "display_name": "Mock User",
+            "uri": "spotify:user:mock-user",
+        })
 
     def _handle_following(self, qs):
         s = self.state

@@ -19,6 +19,15 @@
       <label>Spotify Playlist ID <span class="muted">(optional — leave empty for report-only mode)</span><br>
       <input type="text" name="spotify_playlist_id" value="{{ config.spotify_playlist_id }}" style="width:100%"></label>
     </p>
+    {% if connected %}
+    <p>
+      <label>Or create a new playlist <span class="muted">(the new ID is saved here automatically)</span><br>
+      <input type="text" name="playlist_name" placeholder="Recently Released Albums" style="width:100%"></label><br>
+      <button class="btn" formaction="{{ url_for('create_playlist') }}">Create playlist</button>
+    </p>
+    {% else %}
+    <p class="muted">Connect your Spotify account from the dashboard to create a playlist.</p>
+    {% endif %}
 
     <p><strong>Scan schedule &amp; behaviour</strong></p>
     <p>

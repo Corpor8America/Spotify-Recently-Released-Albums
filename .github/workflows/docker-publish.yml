@@ -42,14 +42,6 @@ jobs:
           echo "Version already tagged. Skipping build."
           exit 0
 
-      - name: Create and push tag if missing
-        if: steps.tagcheck.outputs.exists == 'false'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag "v${{ steps.version.outputs.app_version }}"
-          git push origin "v${{ steps.version.outputs.app_version }}"
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -59,6 +51,26 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if image version already exists in GHCR
+        id: imagecheck
+        env:
+          PKG_NAME: ${{ github.event.repository.name }}
+        run: |
+          ver="${{ steps.version.outputs.app_version }}"
+          found=$(gh api "/users/${{ github.repository_owner }}/packages/container/${PKG_NAME}/versions" \
+            --jq '[.[].metadata.container.tags[]? | select(. == "'"$ver"'" or . == "v'"$ver"'")] | length' 2>/dev/null || echo 0)
+          if [ "$found" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop if image version already published
+        if: steps.imagecheck.outputs.exists == 'true'
+        run: |
+          echo "Image version already published to GHCR. Skipping build."
+          exit 0
 
       - name: Extract metadata (tags and labels)
         id: meta
@@ -82,6 +94,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Create and push tag
+        if: steps.tagcheck.outputs.exists == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v${{ steps.version.outputs.app_version }}"
+          git push origin "v${{ steps.version.outputs.app_version }}"
 
       - name: Check if pre-release
         id: prerelease

@@ -534,6 +534,19 @@ def reorder_playlist(token, state, playlist_id):
     log("Playlist reorder complete.")
 
 
+def create_playlist(token, name, description=None):
+    """Creates a private playlist for the authenticated user and returns
+    its Spotify ID."""
+    me = spotify_request("GET", token, f"{SPOTIFY_API_BASE}/me", {})
+    body = {"name": name, "public": False}
+    if description:
+        body["description"] = description
+    resp = spotify_request(
+        "POST", token, f"{SPOTIFY_API_BASE}/users/{me['id']}/playlists", {},
+        json_data=body)
+    return resp["id"]
+
+
 # --- The scan itself (equivalent of the old main()) ------------------------
 
 def run_scan(days=None, interval_days=None, min_request_interval=None, market="US"):

@@ -146,6 +146,34 @@ class DockerIntegrationTests(unittest.TestCase):
         self.assertEqual(saved["refresh_token"], "mock-refresh-token-auth")
         self.assertTrue(self._get_status()["connected"])
 
+    def test_create_playlist_creates_and_saves_id(self):
+        """POST /create_playlist must create a playlist via the Spotify API
+        and save the new ID into the settings config."""
+        self._reset_app_state()
+        self._mock_reset()
+
+        r = self.session.get(f"{APP_URL}/login", allow_redirects=False, timeout=10)
+        state = parse_qs(urlparse(r.headers["Location"]).query)["state"][0]
+        self.session.get(
+            f"{APP_URL}/callback", params={"state": state, "code": "mock-code"},
+            timeout=10,
+        )
+
+        r = self.session.post(
+            f"{APP_URL}/create_playlist",
+            data={"playlist_name": "My New Picks"},
+            allow_redirects=False,
+            timeout=10,
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertIn("/settings", r.headers["Location"])
+
+        config = json.loads(CONFIG_FILE.read_text())
+        self.assertEqual(config["spotify_playlist_id"], "playlist-001")
+        self.assertIn("playlist-001", self._mock_snapshot()["created_playlist_ids"])
+
+        self._write_seed("app-config.json", _SEED_CONFIG)
+
     # --- scan actions ------------------------------------------------------
 
     def test_run_now_redirects(self):

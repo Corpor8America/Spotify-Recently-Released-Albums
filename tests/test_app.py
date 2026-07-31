@@ -118,6 +118,32 @@ class AppRoutesTests(unittest.TestCase):
         }, follow_redirects=False)
         self.assertEqual(response.status_code, 302)
 
+    # --- create playlist ----------------------------------------------------
+
+    def test_create_playlist_requires_connection(self):
+        response = self.client.post("/create_playlist", data={"playlist_name": "X"})
+        self.assertEqual(response.status_code, 400)
+
+    @patch("app.core.get_access_token", return_value="mock-token")
+    @patch("app.core.create_playlist", return_value="new_playlist_id")
+    def test_create_playlist_saves_id_and_redirects(self, mock_create, mock_token):
+        self._write_token()
+        response = self.client.post("/create_playlist", data={"playlist_name": "My Picks"},
+                                    follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        mock_token.assert_called_once_with("test_client_id", "test_client_secret", "test_refresh")
+        mock_create.assert_called_once_with("mock-token", "My Picks")
+        self.assertEqual(core.load_config()["spotify_playlist_id"], "new_playlist_id")
+
+    def test_settings_shows_create_button_when_connected(self):
+        self._write_token()
+        response = self.client.get("/settings")
+        self.assertIn(b"Create playlist", response.data)
+
+    def test_settings_hides_create_button_when_not_connected(self):
+        response = self.client.get("/settings")
+        self.assertNotIn(b"Create playlist", response.data)
+
     # --- login ---------------------------------------------------------------
 
     def test_login_redirects_to_spotify(self):

@@ -46,7 +46,30 @@ def settings():
         core.save_config(c)
         core.log("Settings saved.")
         return redirect(url_for("dashboard"))
-    return render_template("settings.html", config=cfg(), build_time=BUILD_TIME)
+    return render_template("settings.html", config=cfg(), build_time=BUILD_TIME,
+                           connected=core.is_connected())
+
+
+@app.route("/create_playlist", methods=["POST"])
+def create_playlist():
+    c = cfg()
+    client_id, client_secret = _get_creds()
+    refresh_token = core.load_refresh_token()
+    if not all([client_id, client_secret, refresh_token]):
+        return "Not connected to Spotify", 400
+
+    name = (request.form.get("playlist_name") or "Recently Released Albums").strip()
+    token = core.get_access_token(client_id, client_secret, refresh_token)
+    try:
+        playlist_id = core.create_playlist(token, name)
+    except Exception as e:
+        core.log(f"Playlist creation failed: {e}")
+        return f"Playlist creation failed: {e}", 500
+
+    c["spotify_playlist_id"] = playlist_id
+    core.save_config(c)
+    core.log(f"Created playlist {name!r} ({playlist_id}); set as sync target.")
+    return redirect(url_for("settings"))
 
 
 # --- Dashboard ---------------------------------------------------------------

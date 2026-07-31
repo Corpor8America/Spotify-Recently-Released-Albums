@@ -14,7 +14,9 @@ os.environ["DATA_DIR"] = str(TEST_DIR)
 os.environ["RUN_SCHEDULER"] = "0"
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 import spotify_core as core
+import mock_spotify_server
 
 
 class IsAutoExcludedTests(unittest.TestCase):
@@ -296,6 +298,36 @@ class CancelScanTests(unittest.TestCase):
         self.assertIsNone(loaded["in_progress"])
         self.assertTrue(core._cancel_event.is_set())
         core._cancel_event.clear()
+
+
+class CreatePlaylistTests(unittest.TestCase):
+    """Live tests of core.create_playlist against the mock Spotify server."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.server = mock_spotify_server.MockSpotifyServer()
+        cls.server.start()
+        cls._orig_api_base = core.SPOTIFY_API_BASE
+        cls._orig_min_interval = core.rate_limiter.min_interval_seconds
+        core.SPOTIFY_API_BASE = cls.server.base_url + "/v1"
+        core.rate_limiter.min_interval_seconds = 0
+
+    @classmethod
+    def tearDownClass(cls):
+        core.SPOTIFY_API_BASE = cls._orig_api_base
+        core.rate_limiter.min_interval_seconds = cls._orig_min_interval
+        cls.server.stop()
+
+    def test_creates_playlist_and_returns_id(self):
+        playlist_id = core.create_playlist("mock-access-token", "Test Playlist")
+        self.assertTrue(playlist_id.startswith("playlist-"))
+        self.assertEqual(self.server.state.created_playlists[-1]["name"], "Test Playlist")
+
+    def test_hits_me_then_users_playlists(self):
+        core.create_playlist("mock-access-token", "Another")
+        log = self.server.state.request_log
+        self.assertIn(("GET", "/v1/me"), log)
+        self.assertIn(("POST", "/v1/users/mock-user/playlists"), log)
 
 
 def tearDownModule():

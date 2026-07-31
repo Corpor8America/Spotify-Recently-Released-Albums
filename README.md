@@ -13,39 +13,44 @@ setup with:
 In the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard):
 
 1. Create an app (or reuse the existing one).
-2. Add a **Redirect URI** that exactly matches `PUBLIC_BASE_URL` + `/callback`,
-   e.g. `http://localhost:8080/callback` for local use, or
+2. Add a **Redirect URI** that exactly matches the **Public base URL** (set on
+   the Settings page) + `/callback`, e.g. `http://127.0.0.1:8081/callback` for
+   local use (Spotify rejects `localhost`, use `127.0.0.1`), or
    `https://albums.yourdomain.com/callback` if it's exposed publicly.
 3. Grab the Client ID / Client Secret.
-4. Create the playlist you want auto-synced (or leave `SPOTIFY_PLAYLIST_ID`
-   unset to get report-only mode with no playlist writes).
+4. Create the playlist you want auto-synced (or leave the Playlist ID blank in
+   Settings to get report-only mode with no playlist writes).
 
 ## 2. Configure
-
-```bash
-cp .env.example .env
-# edit .env with your client id/secret, playlist id, and PUBLIC_BASE_URL
-```
-
-`FLASK_SECRET_KEY`: generate one with `python -c "import secrets; print(secrets.token_hex(32))"`.
-If left blank, a random one is generated at container startup — fine for a
-single long-running container, but means OAuth `state` won't survive a
-container restart mid-login (just retry `/login`).
-
-## 3. Run
 
 ```bash
 docker compose up -d --build
 ```
 
-Then open `PUBLIC_BASE_URL` in a browser (e.g. http://localhost:8080),
-click **Connect Spotify account**, and authorize. The refresh token is
-saved to the `spotify_data` volume (`/data/spotify-token.json`) so you
-only do this once — it survives container restarts/rebuilds as long as
-the volume isn't deleted.
+Then open the **Settings** page (`/settings`) and fill in:
+
+- **Spotify Client ID / Client Secret** (from the developer dashboard)
+- **Spotify Playlist ID** (optional — blank = report-only mode, or click
+  **Create playlist** to have one made and saved for you)
+- **Cron schedule** (5-field, UTC), **check each artist every N days**,
+  **days lookback**, **min seconds between API requests**
+- **Public base URL** — must match the Redirect URI registered with Spotify
+
+Settings are persisted to the `spotify_data` volume
+(`/data/app-config.json`), so they survive restarts. The Flask session
+secret is auto-generated on first boot and persisted the same way —
+nothing else to configure.
+
+## 3. Connect
+
+Open the app in a browser (http://127.0.0.1:8081 with the default compose
+config), click **Connect Spotify account**, and authorize. The refresh
+token is saved to the `spotify_data` volume (`/data/spotify-token.json`)
+so you only do this once — it survives container restarts/rebuilds as long
+as the volume isn't deleted.
 
 From then on:
-- The scheduler runs a scan automatically per `CRON_SCHEDULE`.
+- The scheduler runs a scan automatically per the cron schedule set in Settings.
 - **Run scan now** on the dashboard triggers one immediately (won't double-run
   if the scheduled job is already mid-scan — both share the same lock).
 - Exclude/Include buttons write `manual_override` directly into
@@ -82,16 +87,8 @@ to have it persisted properly into the volume going forward.
   it directly against `/data/spotify-state.json`, or port it into a new
   dashboard route the same way `/albums/<id>/override` was added.
 
-## Environment variables
+## Configuration
 
-| Var | Required | Default | Notes |
-|---|---|---|---|
-| `SPOTIFY_CLIENT_ID` | yes | — | |
-| `SPOTIFY_CLIENT_SECRET` | yes | — | |
-| `SPOTIFY_PLAYLIST_ID` | no | unset | report-only mode if unset |
-| `PUBLIC_BASE_URL` | yes | `http://localhost:8080` | must match the Redirect URI registered with Spotify |
-| `CRON_SCHEDULE` | no | `0 6 * * *` | 5-field cron, evaluated in UTC |
-| `MIN_REQUEST_INTERVAL` | no | `20` | seconds between Spotify API calls |
-| `INTERVAL_DAYS` | no | `7` | how often each artist is checked |
-| `DAYS_LOOKBACK` | no | `365` | report/prune window |
-| `FLASK_SECRET_KEY` | no | random per boot | set explicitly for OAuth to survive a mid-login restart |
+All configuration is done from the **Settings** page and persisted to
+`/data/app-config.json` in the `spotify_data` volume. No environment
+variables are required to run the container.
