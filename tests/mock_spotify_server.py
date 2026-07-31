@@ -4,8 +4,9 @@ Mock Spotify API server.
 Simulates just enough of the real Spotify Web API surface for
 spotify-recent-albums.py to run against: token refresh, followed artists
 (paginated), artist albums (paginated), album tracks (paginated), and
-playlist track add/remove. It also simulates the failure modes that matter
-for this project:
+playlist track add/remove (plus a GET /playlists/{id}/items so tests can
+inspect playlist contents and order). It also simulates the failure modes
+that matter for this project:
 
   - A per-minute rate limit (like Spotify's real short-lived 429s).
   - A "daily quota" ceiling: once a configurable number of requests have been
@@ -20,6 +21,10 @@ Playlist track endpoints use /playlists/{id}/items (not /tracks), matching
 Spotify's February 2026 Dev Mode migration, which removed the old
 /playlists/{id}/tracks endpoints for Development Mode apps as of March 9,
 2026. The DELETE body param is "items" (not "tracks") to match as well.
+
+The /token endpoint distinguishes grant_type so tests can verify the OAuth
+authorization_code flow returns a fresh refresh_token while the refresh
+flow just returns an access token.
 
 Run standalone for manual poking:
     python mock_spotify_server.py --port 8791
@@ -48,11 +53,14 @@ def _make_artist(i):
     }
 
 
-def _make_album(artist_id, artist_idx, album_idx, release_date, total_tracks=10):
+def _make_album(artist_id, artist_idx, album_idx, release_date, total_tracks=10, paren=False):
     album_id = f"album_{artist_id}_{album_idx:03d}"
+    name = f"Album {album_idx} by Artist {artist_idx}"
+    if paren:
+        name += " (Deluxe)"
     return {
         "id": album_id,
-        "name": f"Album {album_idx} by Artist {artist_idx}",
+        "name": name,
         "album_type": "album",
         "release_date": release_date,
         "total_tracks": total_tracks,
@@ -88,6 +96,10 @@ class _State:
         self.artists = [_make_artist(i) for i in range(num_artists)]
         # track uris per album, generated lazily/deterministically
         self.playlist_tracks = []  # list of track uris currently "in" the mock playlist
+
+        # Per-artist overrides for the generated catalog.
+        self.artist_release_dates = {}  # artist_id -> release date string
+        self.paren_album_artists = []   # artist_ids whose album names get " (Deluxe)"
 
     def reset_quota(self):
         with self.lock:
@@ -204,6 +216,8 @@ class _Handler(BaseHTTPRequestHandler):
         elif path.startswith("/v1/albums/") and path.endswith("/tracks"):
             album_id = path.split("/")[3]
             self._handle_album_tracks(album_id, qs)
+        elif path.startswith("/v1/playlists/") and path.endswith("/items"):
+            self._handle_playlist_items()
         else:
             self._send_json(404, {"error": {"status": 404, "message": "not found"}})
 
@@ -221,17 +235,38 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"ok": True})
             return
 
+        if path == "/_control/reset_playlist":
+            with self.state.lock:
+                self.state.playlist_tracks = []
+            self._send_json(200, {"ok": True})
+            return
+
         if path == "/_control/configure":
             cfg = json.loads(raw_body or b"{}")
             with self.state.lock:
-                for key in ("daily_quota", "rate_limit_per_minute", "short_429_every", "per_category_quota"):
+                for key in ("daily_quota", "rate_limit_per_minute", "short_429_every",
+                            "per_category_quota", "recent_release_date",
+                            "albums_per_artist", "artist_release_dates",
+                            "paren_album_artists"):
                     if key in cfg:
                         setattr(self.state, key, cfg[key])
             self._send_json(200, {"ok": True})
             return
 
         if path == "/token" or path.endswith("/api/token"):
-            self._send_json(200, {"access_token": "mock-access-token", "token_type": "Bearer", "expires_in": 3600})
+            form = {k: v[0] for k, v in parse_qs(raw_body.decode("utf-8")).items()}
+            grant_type = form.get("grant_type")
+            refresh_token = (
+                "mock-refresh-token-auth"
+                if grant_type == "authorization_code"
+                else "mock-refresh-token"
+            )
+            self._send_json(200, {
+                "access_token": "mock-access-token",
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "refresh_token": refresh_token,
+            })
             return
 
         if not self._auth_ok():
@@ -313,8 +348,10 @@ class _Handler(BaseHTTPRequestHandler):
             artist_idx = int(artist_id.replace("artist", ""))
         except ValueError:
             artist_idx = 0
+        release_date = s.artist_release_dates.get(artist_id, s.recent_release_date)
+        paren = artist_id in s.paren_album_artists
         all_albums = [
-            _make_album(artist_id, artist_idx, n, s.recent_release_date)
+            _make_album(artist_id, artist_idx, n, release_date, paren=paren)
             for n in range(s.albums_per_artist)
         ]
         page = all_albums[offset:offset + limit]
@@ -330,6 +367,14 @@ class _Handler(BaseHTTPRequestHandler):
         ]
         page = all_tracks[offset:offset + limit]
         self._send_json(200, {"items": page, "total": len(all_tracks)})
+
+    def _handle_playlist_items(self):
+        with self.state.lock:
+            uris = list(self.state.playlist_tracks)
+        self._send_json(200, {
+            "items": [{"track": {"uri": u}} for u in uris],
+            "total": len(uris),
+        })
 
 
 class MockSpotifyServer:
@@ -377,11 +422,13 @@ class MockSpotifyServer:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the mock Spotify server standalone")
     parser.add_argument("--port", type=int, default=8791)
+    parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--num-artists", type=int, default=82)
     parser.add_argument("--daily-quota", type=int, default=None)
     args = parser.parse_args()
 
-    server = MockSpotifyServer(num_artists=args.num_artists, daily_quota=args.daily_quota, port=args.port)
+    server = MockSpotifyServer(num_artists=args.num_artists, daily_quota=args.daily_quota,
+                               host=args.host, port=args.port)
     server.start()
     print(f"Mock Spotify server running at {server.base_url}")
     print("Ctrl+C to stop.")

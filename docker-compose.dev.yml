@@ -1,0 +1,32 @@
+services:
+  mock-spotify:
+    container_name: mock-spotify
+    image: python:3.12-slim
+    working_dir: /app
+    entrypoint: python
+    command: tests/mock_spotify_server.py --host 0.0.0.0 --port 8791 --num-artists 20
+    volumes:
+      - .:/app
+    ports:
+      - "8791:8791"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8791/_control/snapshot', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  spotify-recent-albums:
+    container_name: recent-albums-dev
+    build: .
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      RUN_SCHEDULER: "0"
+      SPOTIFY_API_BASE_OVERRIDE: "http://mock-spotify:8791/v1"
+      SPOTIFY_TOKEN_URL_OVERRIDE: "http://mock-spotify:8791/token"
+      SPOTIFY_AUTH_URL_OVERRIDE: "http://mock-spotify:8791/authorize"
+    volumes:
+      - ./tests/seed:/data
+    depends_on:
+      mock-spotify:
+        condition: service_healthy

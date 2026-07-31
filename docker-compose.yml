@@ -1,5 +1,6 @@
 services:
   spotify-recent-albums:
+    container_name: recent-albums
     build: .
     ports:
       - "8081:8080"
