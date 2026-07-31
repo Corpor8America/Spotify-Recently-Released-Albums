@@ -72,13 +72,13 @@ SPOTIFY_AUTH_URL = os.environ.get("SPOTIFY_AUTH_URL_OVERRIDE", "https://accounts
 SPOTIFY_TOKEN_URL = os.environ.get("SPOTIFY_TOKEN_URL_OVERRIDE", "https://accounts.spotify.com/api/token")
 SPOTIFY_API_BASE = os.environ.get("SPOTIFY_API_BASE_OVERRIDE", "https://api.spotify.com/v1")
 REDIRECT_URI = "http://127.0.0.1:8443/callback"
-TOKEN_CACHE = Path(__file__).parent / ".spotify_token_cache.json"
-STATE_FILE = Path(__file__).parent / "spotify-state.json"
+TOKEN_CACHE = Path.cwd() / ".spotify_token_cache.json"
+STATE_FILE = Path.cwd() / "spotify-state.json"
 CHECK_INTERVAL_DAYS = 3
 LONG_WAIT_THRESHOLD_SECONDS = 300
 MAX_REQUESTS_PER_MINUTE = 120
 MAX_LONG_RATE_LIMIT_WAIT_SECONDS = 3600
-DEFAULT_MIN_REQUEST_INTERVAL_SECONDS = 20
+DEFAULT_MIN_REQUEST_INTERVAL_SECONDS = 10
 
 
 _ID_SEGMENT = re.compile(r"/[A-Za-z0-9]{15,}(?=/|$)")

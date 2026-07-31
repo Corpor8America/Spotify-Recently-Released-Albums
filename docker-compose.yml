@@ -1,0 +1,11 @@
+services:
+  spotify-recent-albums:
+    build: .
+    ports:
+      - "8081:8080"
+    volumes:
+      - spotify_data:/data
+    restart: unless-stopped
+
+volumes:
+  spotify_data:

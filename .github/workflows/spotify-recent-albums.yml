@@ -60,7 +60,7 @@ jobs:
         run: |
           DAYS=${{ github.event.inputs.days || '365' }}
           MIN_INTERVAL=${{ github.event.inputs.min_request_interval || '20' }}
-          PYTHONUNBUFFERED=1 python -u spotify-recent-albums.py --resume --days "$DAYS" \
+          PYTHONUNBUFFERED=1 python -u scripts/spotify-recent-albums.py --resume --days "$DAYS" \
             --min-request-interval "$MIN_INTERVAL"
 
       - name: Commit updated state to data branch

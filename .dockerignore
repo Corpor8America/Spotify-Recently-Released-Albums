@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+.git
+.gitignore
+.github
+docs
+scripts
+tests
+static
+README.md
+docker-compose.yml

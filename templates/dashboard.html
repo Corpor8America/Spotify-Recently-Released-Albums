@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block head %}<meta http-equiv="refresh" content="20">{% endblock %}
+{% block content %}
+
+<div class="card">
+  {% if not connected %}
+    <p>Not connected to Spotify yet.</p>
+    <a class="btn" href="{{ url_for('login') }}">Connect Spotify account</a>
+  {% else %}
+    <p>
+      <span class="badge ok">Connected</span>
+      {% if playlist_id %}&nbsp; Playlist: <a href="https://open.spotify.com/playlist/{{ playlist_id }}" target="_blank">{{ playlist_id }}</a>{% else %}&nbsp; <span class="muted">No SPOTIFY_PLAYLIST_ID set -- report only, no playlist sync.</span>{% endif %}
+    </p>
+    <p class="muted">{{ artists_tracked }} artist(s) tracked &middot; {{ known_albums_count }} album(s) known</p>
+    <form method="post" action="{{ url_for('run_now') }}" style="display:inline">
+      <button class="btn" {% if scan_running %}disabled{% endif %} type="submit">
+        {% if scan_running %}Scan running…{% else %}Run scan now{% endif %}
+      </button>
+    </form>
+    {% if scan_running %}
+    <form method="post" action="{{ url_for('cancel_scan') }}" style="display:inline">
+      <button class="btn secondary" type="submit">Cancel scan</button>
+    </form>
+    {% endif %}
+    {% if playlist_id %}
+    <form method="post" action="{{ url_for('reorder_playlist') }}" style="display:inline">
+      <button class="btn secondary" type="submit" {% if reorder_running %}disabled{% endif %}>
+        {% if reorder_running %}Reordering…{% else %}Sort playlist{% endif %}
+      </button>
+    </form>
+    {% endif %}
+    {% if in_progress %}
+      <p class="muted">Mid-scan: {{ in_progress.processed_ids|length }}/{{ in_progress.due_ids|length }} artists done this run (will resume automatically).</p>
+    {% endif %}
+    {% if rate_limits %}
+      {% for cat, until in rate_limits.items() %}
+        <p><span class="badge warn">Rate-limited</span> {{ cat }} until {{ until }}</p>
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Recent releases ({{ report_albums|length }})</h2>
+  <table>
+    <tr><th>Artist</th><th>Album</th><th>Released</th><th>Playlist</th><th></th></tr>
+    {% for a in report_albums %}
+    <tr>
+      <td>{{ a.artist }}</td>
+      <td><a href="{{ a.url }}" target="_blank">{{ a.name }}</a></td>
+      <td>{{ a.release_date }}</td>
+      <td>{% if a.added_to_playlist %}<span class="badge ok">added</span>{% else %}<span class="muted">-</span>{% endif %}</td>
+      <td>
+        <form method="post" action="{{ url_for('set_override', album_id=a.id) }}" style="display:inline">
+          <input type="hidden" name="value" value="true">
+          <button class="btn small secondary" type="submit">Exclude</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">Nothing yet -- run a scan to populate this.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>Excluded albums ({{ excluded_albums|length }})</h2>
+  <p class="muted">Live/remaster/deluxe editions matched by the trailing-parenthetical filter, plus anything you've manually excluded. Flip an override to bring one back.</p>
+  <table>
+    <tr><th>Artist</th><th>Album</th><th>Reason</th><th></th></tr>
+    {% for a in excluded_albums %}
+    <tr>
+      <td>{{ a.artist }}</td>
+      <td><a href="{{ a.url }}" target="_blank">{{ a.name }}</a></td>
+      <td class="muted">{% if a.manual_override %}manual{% else %}auto (parenthetical){% endif %}</td>
+      <td>
+        <form method="post" action="{{ url_for('set_override', album_id=a.id) }}" style="display:inline">
+          <input type="hidden" name="value" value="false">
+          <button class="btn small" type="submit">Include</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="muted">None.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="card">
+  <h2>Recent activity</h2>
+  <pre class="log">{% for line in logs %}{{ line }}
+{% endfor %}</pre>
+</div>
+
+<p class="muted" style="text-align:center; margin-top:1rem;">build {{ build_time }}</p>
+{% endblock %}

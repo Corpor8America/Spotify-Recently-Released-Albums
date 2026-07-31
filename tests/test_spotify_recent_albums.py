@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-SCRIPT_PATH = Path(__file__).resolve().parents[1] / "spotify-recent-albums.py"
+SCRIPT_PATH = Path(__file__).resolve().parents[1] / "scripts" / "spotify-recent-albums.py"
 SPEC = importlib.util.spec_from_file_location("spotify_recent_albums", SCRIPT_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)

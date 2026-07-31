@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card">
+  <h2>Settings</h2>
+  <form method="post" action="{{ url_for('settings') }}">
+    <p><strong>Spotify API credentials</strong> (required — from <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify Dev Dashboard</a>)</p>
+    <p>
+      <label>Client ID<br>
+      <input type="text" name="spotify_client_id" value="{{ config.spotify_client_id }}" style="width:100%"></label>
+    </p>
+    <p>
+      <label>Client Secret<br>
+      <input type="text" name="spotify_client_secret" value="{{ config.spotify_client_secret }}" style="width:100%"></label>
+    </p>
+
+    <p><strong>Playlist</strong></p>
+    <p>
+      <label>Spotify Playlist ID <span class="muted">(optional — leave empty for report-only mode)</span><br>
+      <input type="text" name="spotify_playlist_id" value="{{ config.spotify_playlist_id }}" style="width:100%"></label>
+    </p>
+
+    <p><strong>Scan schedule &amp; behaviour</strong></p>
+    <p>
+      <label>Cron schedule <span class="muted">(5-field UTC, e.g. <code>0 6 * * *</code> for daily 06:00)</span><br>
+      <input type="text" name="cron_schedule" value="{{ config.cron_schedule }}" style="width:100%"></label>
+    </p>
+    <p>
+      <label>Check each artist every N days<br>
+      <input type="number" name="interval_days" value="{{ config.interval_days }}" min="1" max="365"></label>
+    </p>
+    <p>
+      <label>Days lookback (keep albums newer than this)<br>
+      <input type="number" name="days_lookback" value="{{ config.days_lookback }}" min="1" max="3650"></label>
+    </p>
+    <p>
+      <label>Min seconds between API requests<br>
+      <input type="number" name="min_request_interval" value="{{ config.min_request_interval }}" min="0" step="0.5"></label>
+    </p>
+
+    <p><strong>Public URL</strong></p>
+    <p>
+      <label>Public base URL <span class="muted">(must match the Redirect URI in your Spotify app)</span><br>
+      <input type="text" name="public_base_url" value="{{ config.public_base_url }}" style="width:100%"></label>
+    </p>
+
+    <p><strong>Session secret</strong> <span class="muted">(auto-generated, persists across restarts)</span></p>
+    <p>
+      <label>Flask secret key<br>
+      <input type="text" value="{{ config.flask_secret_key }}" style="width:100%" readonly></label>
+    </p>
+
+    <p>
+      <button class="btn" type="submit">Save settings</button>
+      <a class="btn secondary" href="{{ url_for('dashboard') }}" style="text-decoration:none">Back</a>
+    </p>
+  </form>
+</div>
+
+<p class="muted" style="text-align:center; margin-top:1rem;">build {{ build_time }}</p>
+{% endblock %}

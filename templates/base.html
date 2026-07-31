@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Recent Albums</title>
+  {% block head %}{% endblock %}
+  <style>
+    body { font-family: -apple-system, Helvetica, Arial, sans-serif; background:#111; color:#eee; margin:0; padding:2rem; }
+    a { color:#1db954; }
+    .card { background:#1a1a1a; border-radius:10px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; }
+    table { width:100%; border-collapse: collapse; }
+    td, th { padding:.4rem .5rem; border-bottom:1px solid #2a2a2a; text-align:left; font-size:.92rem; }
+    .btn { background:#1db954; color:#000; border:none; padding:.5rem 1rem; border-radius:20px; font-weight:600; cursor:pointer; }
+    .btn.secondary { background:#333; color:#eee; }
+    .btn.small { padding:.2rem .6rem; font-size:.8rem; border-radius:12px; }
+    .badge { display:inline-block; padding:.15rem .5rem; border-radius:10px; font-size:.75rem; }
+    .badge.ok { background:#123; color:#4f8; }
+    .badge.warn { background:#331; color:#fc4; }
+    .badge.err { background:#311; color:#f66; }
+    .muted { color:#888; font-size:.85rem; }
+    pre.log { background:#000; color:#8f8; padding:1rem; border-radius:6px; max-height:280px; overflow:auto; font-size:.78rem; }
+    h1 { font-size:1.4rem; display:flex; align-items:center; justify-content:space-between; }
+    h2 { font-size:1.05rem; color:#ccc; }
+  </style>
+</head>
+<body>
+  <h1><span>🎧 Recent Albums</span> <a href="{{ url_for('settings') }}" title="Settings" style="font-size:1.8rem; text-decoration:none; color:#888;">&#9881;</a></h1>
+  {% block content %}{% endblock %}
+</body>
+</html>
