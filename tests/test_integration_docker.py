@@ -379,7 +379,17 @@ class DockerIntegrationTests(unittest.TestCase):
         return json.loads(STATE_FILE.read_text())
 
     def _write_state(self, state):
-        STATE_FILE.write_text(json.dumps(state))
+        self._write_seed("spotify-state.json", state)
+
+    def _write_seed(self, name, data):
+        """Replace a seed file.  The app container (root) may have created
+        root-owned copies in the bind mount, which the CI runner cannot open
+        for writing; unlink first since deletion only needs directory write
+        permission."""
+        fpath = SEED_DIR / name
+        if fpath.exists():
+            fpath.unlink()
+        fpath.write_text(json.dumps(data))
 
     def _reset_app_state(self):
         """Restore the app's persisted state to the seed files.  Waits for
@@ -389,7 +399,7 @@ class DockerIntegrationTests(unittest.TestCase):
         for name, data in (("spotify-state.json", _SEED_STATE),
                            ("spotify-token.json", _SEED_TOKEN),
                            ("app-config.json", _SEED_CONFIG)):
-            (SEED_DIR / name).write_text(json.dumps(data))
+            self._write_seed(name, data)
         self._wait_for_mock_idle()
         self._mock_reset()
         self._wait_for_mock_idle()
