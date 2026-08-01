@@ -4,6 +4,7 @@ import threading
 from datetime import datetime, timezone
 
 from flask import Flask, redirect, request, url_for, render_template, jsonify, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 BUILD_TIME = "2026-07-29"
 
@@ -15,11 +16,19 @@ def cfg():
 
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 app.secret_key = cfg()["flask_secret_key"]
 
 
+def public_base_url():
+    explicit = (cfg().get("public_base_url") or "").strip().rstrip("/")
+    if explicit:
+        return explicit
+    return request.host_url.rstrip("/")
+
+
 def redirect_uri():
-    return f"{cfg()['public_base_url'].rstrip('/')}/callback"
+    return f"{public_base_url()}/callback"
 
 
 def _get_creds():
@@ -47,6 +56,7 @@ def settings():
         core.log("Settings saved.")
         return redirect(url_for("dashboard"))
     return render_template("settings.html", config=cfg(), build_time=BUILD_TIME,
+                           effective_public_base_url=public_base_url(),
                            connected=core.is_connected())
 
 

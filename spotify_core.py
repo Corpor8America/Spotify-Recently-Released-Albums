@@ -57,7 +57,7 @@ def load_config():
         "min_request_interval": float(os.environ.get("MIN_REQUEST_INTERVAL", "10")),
         "days_lookback": int(os.environ.get("DAYS_LOOKBACK", "365")),
         "cron_schedule": os.environ.get("CRON_SCHEDULE", "0 6 * * *"),
-        "public_base_url": os.environ.get("PUBLIC_BASE_URL", "http://127.0.0.1:8081").rstrip("/"),
+        "public_base_url": os.environ.get("PUBLIC_BASE_URL", "").rstrip("/"),
         "flask_secret_key": "",
     }
     if CONFIG_FILE.exists():

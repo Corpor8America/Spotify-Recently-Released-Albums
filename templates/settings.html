@@ -49,8 +49,8 @@
 
     <p><strong>Public URL</strong></p>
     <p>
-      <label>Public base URL <span class="muted">(must match the Redirect URI in your Spotify app)</span><br>
-      <input type="text" name="public_base_url" value="{{ config.public_base_url }}" style="width:100%"></label>
+      <label>Public base URL <span class="muted">(defaults to the URL you're viewing from; must match the Redirect URI registered in your Spotify app — <code>/callback</code> is appended automatically)</span><br>
+      <input type="text" name="public_base_url" value="{{ effective_public_base_url }}" style="width:100%"></label>
     </p>
 
     <p><strong>Session secret</strong> <span class="muted">(auto-generated, persists across restarts)</span></p>

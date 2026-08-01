@@ -1,11 +1,27 @@
 services:
   spotify-recent-albums:
+    image: ghcr.io/corpor8america/spotify-recent-albums:latest
     container_name: recent-albums
-    build: .
     ports:
       - "8081:8080"
     volumes:
       - spotify_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/status', timeout=5)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
 volumes:

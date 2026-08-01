@@ -14,8 +14,9 @@ In the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard):
 
 1. Create an app (or reuse the existing one).
 2. Add a **Redirect URI** that exactly matches the **Public base URL** (set on
-   the Settings page) + `/callback`, e.g. `http://127.0.0.1:8081/callback` for
-   local use (Spotify rejects `localhost`, use `127.0.0.1`), or
+   the Settings page) + `/callback`, e.g. `http://127.0.0.1:8080/callback` for
+   the local compose or `http://127.0.0.1:8081/callback` for production on the
+   same machine (Spotify rejects `localhost`, use `127.0.0.1`), or
    `https://albums.yourdomain.com/callback` if it's exposed publicly.
 3. Grab the Client ID / Client Secret.
 4. Create the playlist you want auto-synced (or leave the Playlist ID blank in
@@ -23,11 +24,18 @@ In the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard):
 
 ## 2. Configure
 
-```bash
-docker compose up -d --build
-```
+Pick a compose profile:
 
-Then open the **Settings** page (`/settings`) and fill in:
+- **Production** (default, host port `8081`, pulls the published image from
+  GHCR — no local build): `docker compose up -d`
+- **Local** (host port `8080`, separate `spotify_local_data` volume, so its
+  state never collides with production):
+  `docker compose -f docker-compose.local.yml up -d --build`
+- **Dev / mock Spotify** (no real API calls, seeds from `tests/seed`):
+  `docker compose -f docker-compose.dev.yml up -d --build`
+
+No environment variables are needed — everything is configured on the Settings
+page. Then open the **Settings** page (`/settings`) and fill in:
 
 - **Spotify Client ID / Client Secret** (from the developer dashboard)
 - **Spotify Playlist ID** (optional — blank = report-only mode, or click
@@ -35,6 +43,9 @@ Then open the **Settings** page (`/settings`) and fill in:
 - **Cron schedule** (5-field, UTC), **check each artist every N days**,
   **days lookback**, **min seconds between API requests**
 - **Public base URL** — must match the Redirect URI registered with Spotify
+  (`/callback` is appended automatically). It defaults to the URL you're
+  accessing the app from, so it only needs editing when you move the app or
+  access it via a different host/domain.
 
 Settings are persisted to the `spotify_data` volume
 (`/data/app-config.json`), so they survive restarts. The Flask session
@@ -43,11 +54,11 @@ nothing else to configure.
 
 ## 3. Connect
 
-Open the app in a browser (http://127.0.0.1:8081 with the default compose
-config), click **Connect Spotify account**, and authorize. The refresh
-token is saved to the `spotify_data` volume (`/data/spotify-token.json`)
-so you only do this once — it survives container restarts/rebuilds as long
-as the volume isn't deleted.
+Open the app in a browser (http://127.0.0.1:8081 for the production compose,
+http://127.0.0.1:8080 for the local one), click **Connect Spotify account**, and
+authorize. The refresh token is saved to the same volume as the app state
+(`/data/spotify-token.json`) so you only do this once — it survives container
+restarts/rebuilds as long as the volume isn't deleted.
 
 From then on:
 - The scheduler runs a scan automatically per the cron schedule set in Settings.
@@ -59,10 +70,12 @@ From then on:
 
 ## 4. Backing up / migrating state
 
-Everything that matters lives in the `spotify_data` volume:
+Everything that matters lives in the app's data volume:
+`spotify-recently-released-albums_spotify_data` (production) or
+`spotify-recently-released-albums_spotify_local_data` (local):
 
 ```bash
-docker run --rm -v spotify-webapp_spotify_data:/data -v $(pwd):/backup \
+docker run --rm -v spotify-recently-released-albums_spotify_data:/data -v $(pwd):/backup \
   alpine tar czf /backup/spotify-data-backup.tar.gz -C /data .
 ```
 
