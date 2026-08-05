@@ -6,9 +6,15 @@ from datetime import datetime, timezone
 from flask import Flask, redirect, request, url_for, render_template, jsonify, session
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-BUILD_TIME = "2026-07-29"
-
 import spotify_core as core
+
+
+def version():
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "VERSION")) as f:
+            return f.read().strip()
+    except OSError:
+        return "unknown"
 
 
 def cfg():
@@ -55,7 +61,7 @@ def settings():
         core.save_config(c)
         core.log("Settings saved.")
         return redirect(url_for("dashboard"))
-    return render_template("settings.html", config=cfg(), build_time=BUILD_TIME,
+    return render_template("settings.html", config=cfg(), version=version(),
                            effective_public_base_url=public_base_url(),
                            connected=core.is_connected())
 
@@ -126,7 +132,7 @@ def dashboard():
         scan_running=core.run_lock.locked(),
         reorder_running=core.reorder_lock.locked(),
         now=datetime.now(timezone.utc),
-        build_time=BUILD_TIME,
+        version=version(),
     )
 
 

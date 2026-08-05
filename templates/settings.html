@@ -2,69 +2,119 @@
 {% block content %}
 
 <div class="card">
-  <h2>Settings</h2>
+  <h2><span class="material-symbols-outlined">settings</span> Settings</h2>
   <form method="post" action="{{ url_for('settings') }}">
-    <p><strong>Spotify API credentials</strong> (required — from <a href="https://developer.spotify.com/dashboard" target="_blank">Spotify Dev Dashboard</a>)</p>
-    <p>
-      <label>Client ID<br>
-      <input type="text" name="spotify_client_id" value="{{ config.spotify_client_id }}" style="width:100%"></label>
-    </p>
-    <p>
-      <label>Client Secret<br>
-      <input type="text" name="spotify_client_secret" value="{{ config.spotify_client_secret }}" style="width:100%"></label>
-    </p>
+    
+    <!-- Group: Credentials -->
+    <div class="settings-group">
+      <h3><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.25rem;">vpn_key</span> Spotify API credentials</h3>
+      <p class="muted" style="margin-bottom: 1rem;">Required credentials from your <a href="https://developer.spotify.com/dashboard" target="_blank" style="display: inline-flex; align-items: center; gap: 0.15rem; font-weight: 500;">Spotify Developer Dashboard <span class="material-symbols-outlined" style="font-size: 14px;">open_in_new</span></a></p>
+      
+      <div class="settings-row">
+        <div class="form-field">
+          <label for="spotify_client_id">Client ID</label>
+          <input type="text" id="spotify_client_id" name="spotify_client_id" value="{{ config.spotify_client_id }}">
+        </div>
+        <div class="form-field">
+          <label for="spotify_client_secret">Client Secret</label>
+          <input type="text" id="spotify_client_secret" name="spotify_client_secret" value="{{ config.spotify_client_secret }}">
+        </div>
+      </div>
+    </div>
 
-    <p><strong>Playlist</strong></p>
-    <p>
-      <label>Spotify Playlist ID <span class="muted">(optional — leave empty for report-only mode)</span><br>
-      <input type="text" name="spotify_playlist_id" value="{{ config.spotify_playlist_id }}" style="width:100%"></label>
-    </p>
-    {% if connected %}
-    <p>
-      <label>Or create a new playlist <span class="muted">(the new ID is saved here automatically)</span><br>
-      <input type="text" name="playlist_name" placeholder="Recently Released Albums" style="width:100%"></label><br>
-      <button class="btn" formaction="{{ url_for('create_playlist') }}">Create playlist</button>
-    </p>
-    {% else %}
-    <p class="muted">Connect your Spotify account from the dashboard to create a playlist.</p>
-    {% endif %}
+    <!-- Group: Playlist -->
+    <div class="settings-group">
+      <h3><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.25rem;">playlist_play</span> Playlist Sync</h3>
+      <div class="settings-row" style="grid-template-columns: 1fr;">
+        <div class="form-field">
+          <label for="spotify_playlist_id">Spotify Playlist ID <span class="muted">(leave empty for report-only mode)</span></label>
+          <input type="text" id="spotify_playlist_id" name="spotify_playlist_id" value="{{ config.spotify_playlist_id }}">
+        </div>
+      </div>
+      
+      {% if connected %}
+      <div class="settings-row" style="margin-top: 1.25rem;">
+        <div class="form-field">
+          <label for="playlist_name">Create a new playlist <span class="muted">(saved here automatically)</span></label>
+          <input type="text" id="playlist_name" name="playlist_name" placeholder="Recently Released Albums">
+        </div>
+      </div>
+      <div class="button-row" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+        <button class="btn secondary" formaction="{{ url_for('create_playlist') }}">
+          <span class="material-symbols-outlined">playlist_add</span> Create playlist
+        </button>
+      </div>
+      {% else %}
+      <p class="muted" style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.25rem;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">info</span> Connect your Spotify account from the dashboard to create a playlist.
+      </p>
+      {% endif %}
+    </div>
 
-    <p><strong>Scan schedule &amp; behaviour</strong></p>
-    <p>
-      <label>Cron schedule <span class="muted">(5-field UTC, e.g. <code>0 6 * * *</code> for daily 06:00)</span><br>
-      <input type="text" name="cron_schedule" value="{{ config.cron_schedule }}" style="width:100%"></label>
-    </p>
-    <p>
-      <label>Check each artist every N days<br>
-      <input type="number" name="interval_days" value="{{ config.interval_days }}" min="1" max="365"></label>
-    </p>
-    <p>
-      <label>Days lookback (keep albums newer than this)<br>
-      <input type="number" name="days_lookback" value="{{ config.days_lookback }}" min="1" max="3650"></label>
-    </p>
-    <p>
-      <label>Min seconds between API requests<br>
-      <input type="number" name="min_request_interval" value="{{ config.min_request_interval }}" min="0" step="0.5"></label>
-    </p>
+    <!-- Group: Schedule & Behaviour -->
+    <div class="settings-group">
+      <h3><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.25rem;">schedule</span> Scan schedule &amp; behaviour</h3>
+      
+      <div class="settings-row">
+        <div class="form-field">
+          <label for="cron_schedule">Cron schedule <span class="muted">(5-field UTC)</span></label>
+          <input type="text" id="cron_schedule" name="cron_schedule" value="{{ config.cron_schedule }}">
+          <span class="helper-text">e.g. <code>0 6 * * *</code> for daily at 06:00 UTC</span>
+        </div>
+        <div class="form-field">
+          <label for="interval_days">Check artist frequency</label>
+          <input type="number" id="interval_days" name="interval_days" value="{{ config.interval_days }}" min="1" max="365">
+          <span class="helper-text">Check each artist every N days</span>
+        </div>
+      </div>
+      
+      <div class="settings-row">
+        <div class="form-field">
+          <label for="days_lookback">Days lookback</label>
+          <input type="number" id="days_lookback" name="days_lookback" value="{{ config.days_lookback }}" min="1" max="3650">
+          <span class="helper-text">Keep albums newer than this many days</span>
+        </div>
+        <div class="form-field">
+          <label for="min_request_interval">Min seconds between API requests</label>
+          <input type="number" id="min_request_interval" name="min_request_interval" value="{{ config.min_request_interval }}" min="0" step="0.5">
+          <span class="helper-text">Throttles API requests to prevent Spotify rate-limits</span>
+        </div>
+      </div>
+    </div>
 
-    <p><strong>Public URL</strong></p>
-    <p>
-      <label>Public base URL <span class="muted">(defaults to the URL you're viewing from; must match the Redirect URI registered in your Spotify app — <code>/callback</code> is appended automatically)</span><br>
-      <input type="text" name="public_base_url" value="{{ effective_public_base_url }}" style="width:100%"></label>
-    </p>
+    <!-- Group: Public URL & Session -->
+    <div class="settings-group">
+      <h3><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.25rem;">public</span> Public URL</h3>
+      <div class="settings-row" style="grid-template-columns: 1fr;">
+        <div class="form-field">
+          <label for="public_base_url">Public base URL</label>
+          <input type="text" id="public_base_url" name="public_base_url" value="{{ effective_public_base_url }}">
+          <span class="helper-text">Must match the Redirect URI in Spotify Developer Dashboard (<code>/callback</code> is appended automatically).</span>
+        </div>
+      </div>
+    </div>
 
-    <p><strong>Session secret</strong> <span class="muted">(auto-generated, persists across restarts)</span></p>
-    <p>
-      <label>Flask secret key<br>
-      <input type="text" value="{{ config.flask_secret_key }}" style="width:100%" readonly></label>
-    </p>
+    <div class="settings-group">
+      <h3><span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.25rem;">security</span> Session secret</h3>
+      <div class="settings-row" style="grid-template-columns: 1fr;">
+        <div class="form-field">
+          <label for="flask_secret_key">Flask secret key <span class="muted">(auto-generated, persists across restarts)</span></label>
+          <input type="text" id="flask_secret_key" value="{{ config.flask_secret_key }}" readonly>
+        </div>
+      </div>
+    </div>
 
-    <p>
-      <button class="btn" type="submit">Save settings</button>
-      <a class="btn secondary" href="{{ url_for('dashboard') }}" style="text-decoration:none">Back</a>
-    </p>
+    <!-- Actions -->
+    <div class="button-row" style="border-top: 1px solid var(--md-sys-color-surface-variant); padding-top: 1.5rem; margin-top: 1.5rem;">
+      <button class="btn" type="submit">
+        <span class="material-symbols-outlined">save</span> Save settings
+      </button>
+      <a class="btn secondary" href="{{ url_for('dashboard') }}" style="text-decoration:none">
+        <span class="material-symbols-outlined">arrow_back</span> Back
+      </a>
+    </div>
   </form>
 </div>
 
-<p class="muted" style="text-align:center; margin-top:1rem;">build {{ build_time }}</p>
+<p class="footer-text">version {{ version }}</p>
 {% endblock %}

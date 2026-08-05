@@ -6,6 +6,5 @@ __pycache__
 docs
 scripts
 tests
-static
 README.md
 docker-compose.yml
