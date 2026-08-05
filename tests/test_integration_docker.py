@@ -423,7 +423,7 @@ class DockerIntegrationTests(unittest.TestCase):
         """Restore the app's persisted state to the seed files.  Waits for
         background work (scans, reorders) to settle first so a stray async
         task from a previous test can't clobber the reset."""
-        self._wait_for_scan_idle()
+        self._wait_for_background_idle()
         for name, data in (("spotify-state.json", _SEED_STATE),
                            ("spotify-token.json", _SEED_TOKEN),
                            ("app-config.json", _SEED_CONFIG)):
@@ -457,7 +457,7 @@ class DockerIntegrationTests(unittest.TestCase):
             time.sleep(POLL_INTERVAL)
         self.fail("Background scan did not finish within timeout")
 
-    def _wait_for_scan_idle(self, timeout=SCAN_TIMEOUT_SECONDS):
+    def _wait_for_background_idle(self, timeout=SCAN_TIMEOUT_SECONDS):
         deadline = time.time() + timeout
         while time.time() < deadline:
             try:
@@ -465,10 +465,10 @@ class DockerIntegrationTests(unittest.TestCase):
             except (AssertionError, requests.RequestException):
                 time.sleep(POLL_INTERVAL)
                 continue
-            if not data["scan_running"]:
+            if not data["scan_running"] and not data.get("reorder_running", False):
                 return
             time.sleep(POLL_INTERVAL)
-        self.fail("Background scan did not settle before reset")
+        self.fail("Background scan or reorder did not settle before reset")
 
     def _wait_for_log(self, text, timeout=60):
         deadline = time.time() + timeout

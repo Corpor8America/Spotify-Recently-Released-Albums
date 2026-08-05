@@ -245,6 +245,7 @@ def status():
     return jsonify({
         "connected": core.is_connected(),
         "scan_running": core.run_lock.locked(),
+        "reorder_running": core.reorder_lock.locked(),
         "in_progress": state.get("in_progress"),
         "rate_limits": state.get("rate_limits", {}),
         "known_albums_count": len(state.get("known_albums", {})),
