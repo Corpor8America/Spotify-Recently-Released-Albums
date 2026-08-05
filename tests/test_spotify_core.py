@@ -152,6 +152,25 @@ class GetDueArtistsTests(unittest.TestCase):
         self.assertEqual(len(due), 1)
         self.assertEqual(due[0]["id"], "a2")
 
+    def test_selects_oldest_batch_when_none_are_overdue(self):
+        now = datetime.now(timezone.utc)
+        artists = [
+            {"id": "a1", "name": "A"},
+            {"id": "a2", "name": "B"},
+            {"id": "a3", "name": "C"},
+            {"id": "a4", "name": "D"},
+        ]
+        state = {
+            "artists": {
+                "a1": {"name": "A", "last_checked": (now - timedelta(days=1)).isoformat()},
+                "a2": {"name": "B", "last_checked": (now - timedelta(days=2)).isoformat()},
+                "a3": {"name": "C", "last_checked": (now - timedelta(hours=6)).isoformat()},
+                "a4": {"name": "D", "last_checked": (now - timedelta(hours=12)).isoformat()},
+            }
+        }
+        due = core.get_due_artists(artists, state, 3)
+        self.assertEqual([artist["id"] for artist in due], ["a2"])
+
 
 class EndpointCategoryTests(unittest.TestCase):
     def test_normalizes_ids(self):
@@ -209,6 +228,23 @@ class StateFileTests(unittest.TestCase):
         core.save_state(original)
         loaded = core.load_state()
         self.assertEqual(loaded["artists"]["a1"]["name"], "Test")
+
+    def test_clear_expired_rate_limits_removes_only_past_entries(self):
+        state = {
+            "artists": {},
+            "known_albums": {},
+            "in_progress": None,
+            "rate_limits": {"expired": 99, "future": 101},
+        }
+        changed = core.clear_expired_rate_limits(state, now=100)
+        self.assertTrue(changed)
+        self.assertEqual(state["rate_limits"], {"future": 101})
+
+    def test_clear_expired_rate_limits_reports_no_change(self):
+        state = {"rate_limits": {"future": 101}}
+        changed = core.clear_expired_rate_limits(state, now=100)
+        self.assertFalse(changed)
+        self.assertEqual(state["rate_limits"], {"future": 101})
 
 
 class TokenFileTests(unittest.TestCase):

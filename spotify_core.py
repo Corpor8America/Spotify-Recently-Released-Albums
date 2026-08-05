@@ -196,8 +196,11 @@ def is_non_retryable_spotify_error(resp):
 def spotify_request(method, token, url, state, params=None, json_data=None, retries=5, backoff=1):
     category = endpoint_category(method, url)
     blocked_until = state.get("rate_limits", {}).get(category)
-    if blocked_until and int(time.time()) < blocked_until:
-        raise LongRateLimitBlock(category, blocked_until)
+    if blocked_until:
+        if int(time.time()) < blocked_until:
+            raise LongRateLimitBlock(category, blocked_until)
+        del state["rate_limits"][category]
+        save_state(state)
 
     rate_limiter.wait_if_needed()
     headers = {"Authorization": f"Bearer {token}"}
@@ -206,13 +209,15 @@ def spotify_request(method, token, url, state, params=None, json_data=None, retr
     resp = requests.request(method, url, headers=headers, params=params, json=json_data)
 
     if resp.status_code == 429:
-        retry_after = int(resp.headers.get("Retry-After", backoff))
+        retry_after_raw = resp.headers.get("Retry-After", str(backoff))
+        retry_after = int(retry_after_raw)
         if retry_after > LONG_WAIT_THRESHOLD_SECONDS:
             retry_until = int(time.time()) + retry_after
             state.setdefault("rate_limits", {})[category] = retry_until
             save_state(state)
             log(f"  Rate limited on {method} {url} (category: {category}); "
-                f"blocked for {retry_after}s.")
+                f"Retry-After={retry_after_raw!r}; blocked for {retry_after}s "
+                f"until {datetime.fromtimestamp(retry_until, tz=timezone.utc).isoformat()}.")
             raise LongRateLimitBlock(category, retry_until)
         if retries <= 0:
             raise Exception("Rate limited - max retries exceeded")
@@ -312,6 +317,16 @@ def load_state():
     return {"artists": {}, "known_albums": {}, "in_progress": None, "rate_limits": {}}
 
 
+def clear_expired_rate_limits(state, now=None):
+    now_ts = int(now if now is not None else time.time())
+    rate_limits = state.setdefault("rate_limits", {})
+    expired = [category for category, retry_until in rate_limits.items()
+               if int(retry_until) <= now_ts]
+    for category in expired:
+        del rate_limits[category]
+    return bool(expired)
+
+
 def save_state(state):
     tmp = STATE_FILE.with_suffix(".tmp")
     tmp.parent.mkdir(parents=True, exist_ok=True)
@@ -331,6 +346,15 @@ def get_due_artists(artists, state, interval_days):
         last_checked = datetime.fromisoformat(entry["last_checked"])
         if now - last_checked >= timedelta(days=interval_days):
             due.append(artist)
+    if not due and artists:
+        checked = []
+        for artist in artists:
+            entry = state["artists"].get(artist["id"])
+            if entry is not None:
+                checked.append((artist, datetime.fromisoformat(entry["last_checked"])))
+        checked.sort(key=lambda x: x[1])
+        batch_size = max(1, len(artists) // max(1, interval_days))
+        due = [artist for artist, _ in checked[:min(len(checked), batch_size)]]
     return due
 
 
@@ -581,6 +605,8 @@ def run_scan(days=None, interval_days=None, min_request_interval=None, market="U
         token = get_access_token(client_id, client_secret, refresh_token)
         cutoff = datetime.now() - timedelta(days=days)
         state = load_state()
+        if clear_expired_rate_limits(state):
+            save_state(state)
         playlist_id = _cfg["spotify_playlist_id"] or None
         blocked_categories = []
 

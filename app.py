@@ -84,12 +84,27 @@ def create_playlist():
 
 # --- Dashboard ---------------------------------------------------------------
 
+def format_rate_limit_until(ts):
+    now = datetime.now(timezone.utc)
+    until = datetime.fromtimestamp(ts, tz=timezone.utc)
+    remaining = max(0, int(ts - now.timestamp()))
+    if remaining >= 3600:
+        relative = f"about {(remaining + 3599) // 3600}h"
+    elif remaining >= 60:
+        relative = f"about {(remaining + 59) // 60}m"
+    else:
+        relative = f"{remaining}s"
+    return f"{until.strftime('%Y-%m-%d %I:%M:%S %p UTC')} ({relative})"
+
+
 @app.route("/")
 def dashboard():
     if not core.is_configured():
         return redirect(url_for("settings"))
 
     state = core.load_state()
+    if core.clear_expired_rate_limits(state):
+        core.save_state(state)
     c = cfg()
     report_albums = core.get_report_albums(state, c["days_lookback"])
     excluded_albums = core.get_excluded_albums(state)
@@ -102,7 +117,7 @@ def dashboard():
         excluded_albums=excluded_albums,
         in_progress=state.get("in_progress"),
         rate_limits={
-            cat: datetime.fromtimestamp(ts).strftime("%Y-%m-%d %I:%M %p")
+            cat: format_rate_limit_until(ts)
             for cat, ts in state.get("rate_limits", {}).items()
         },
         artists_tracked=len(state.get("artists", {})),
@@ -216,6 +231,8 @@ def set_override(album_id):
 @app.route("/status")
 def status():
     state = core.load_state()
+    if core.clear_expired_rate_limits(state):
+        core.save_state(state)
     return jsonify({
         "connected": core.is_connected(),
         "scan_running": core.run_lock.locked(),
