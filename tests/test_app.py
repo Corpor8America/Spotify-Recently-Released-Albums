@@ -233,6 +233,33 @@ class AppRoutesTests(unittest.TestCase):
         data = json.loads(response.data)
         self.assertTrue(data["connected"])
 
+    # --- rate-limit banner ---------------------------------------------------
+
+    def test_dashboard_shows_rate_limit_banner_from_persisted_state(self):
+        import time as _time
+        self._write_token()
+        core.save_state({
+            "artists": {},
+            "known_albums": {},
+            "in_progress": None,
+            "rate_limits": {"GET /artists/{id}/albums": int(_time.time()) + 3600},
+        })
+        response = self.client.get("/")
+        self.assertIn(b"Rate-limited", response.data)
+        self.assertIn(b"GET /artists/{id}/albums", response.data)
+
+    def test_dashboard_hides_rate_limit_banner_when_expired(self):
+        import time as _time
+        self._write_token()
+        core.save_state({
+            "artists": {},
+            "known_albums": {},
+            "in_progress": None,
+            "rate_limits": {"GET /artists/{id}/albums": int(_time.time()) - 3600},
+        })
+        response = self.client.get("/")
+        self.assertNotIn(b"Rate-limited", response.data)
+
 
 def tearDownModule():
     shutil.rmtree(TEST_DIR, ignore_errors=True)

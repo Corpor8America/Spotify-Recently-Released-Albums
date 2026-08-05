@@ -152,6 +152,24 @@ def endpoint_category(method, url):
     return f"{method} {normalized}"
 
 
+# Rate-limit categories the scan needs, so it can skip a phase it already
+# knows is blocked instead of starting it and stopping on the first request.
+FOLLOWED_ARTISTS_CATEGORY = "GET /me/following"
+ARTIST_ALBUMS_CATEGORY = "GET /artists/{id}/albums"
+ALBUM_TRACKS_CATEGORY = "GET /albums/{id}/tracks"
+PLAYLIST_ADD_CATEGORY = "POST /playlists/{id}/items"
+PLAYLIST_REMOVE_CATEGORY = "DELETE /playlists/{id}/items"
+
+
+def blocked_until(state, category):
+    """Return the retry-until timestamp for ``category`` if it is currently
+    blocked (in the future), else None."""
+    retry_until = state.get("rate_limits", {}).get(category)
+    if retry_until is None or int(retry_until) <= int(time.time()):
+        return None
+    return int(retry_until)
+
+
 class LongRateLimitBlock(Exception):
     def __init__(self, category, retry_until):
         self.category = category
@@ -701,76 +719,85 @@ def run_scan(days=None, interval_days=None, min_request_interval=None, market="U
             if ip is not None:
                 processed_ids = set(ip["processed_ids"])
                 due_artists = [a for a in artists if a["id"] in ip["due_ids"]]
-                log(f"Resuming: {len(due_artists) - len(processed_ids)}/{len(due_artists)} remaining")
+                remaining = len(due_artists) - len(processed_ids)
+                log(f"Resuming: {remaining}/{len(due_artists)} remaining")
             else:
                 due_artists = get_due_artists(artists, state, interval_days)
                 processed_ids = set()
+                remaining = len(due_artists)
                 state["in_progress"] = {"due_ids": [a["id"] for a in due_artists], "processed_ids": []}
                 save_state(state)
                 log(f"{len(due_artists)}/{len(artists)} artists due for a check (interval: {interval_days}d)")
 
             now_iso = datetime.now(timezone.utc).isoformat()
-            try:
-                for i, artist in enumerate(due_artists, 1):
-                    if artist["id"] in processed_ids:
-                        continue
-                    if _cancel_event.is_set():
-                        log("  Scan cancelled by user.")
-                        break
-                    log(f"  [{i}/{len(due_artists)}] {artist['name']} - fetching albums...")
-                    try:
-                        albums = get_artist_albums(token, artist["id"], state, market)
-                    except LongRateLimitBlock:
-                        raise
-                    except Exception as e:
-                        log(f"    ERROR: {artist['name']}: {e}")
+            albums_blocked_until = blocked_until(state, ARTIST_ALBUMS_CATEGORY)
+            if albums_blocked_until is not None:
+                blocked_categories.append(ARTIST_ALBUMS_CATEGORY)
+                log(f"Skipping album scan -- {ARTIST_ALBUMS_CATEGORY} rate-limited until "
+                    f"{datetime.fromtimestamp(albums_blocked_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}. "
+                    f"{remaining} artist(s) will be checked on the next scan.")
+            else:
+                try:
+                    for i, artist in enumerate(due_artists, 1):
+                        if artist["id"] in processed_ids:
+                            continue
+                        if _cancel_event.is_set():
+                            log("  Scan cancelled by user.")
+                            break
+                        log(f"  [{i}/{len(due_artists)}] {artist['name']} - fetching albums...")
+                        try:
+                            albums = get_artist_albums(token, artist["id"], state, market)
+                        except LongRateLimitBlock:
+                            raise
+                        except Exception as e:
+                            log(f"    ERROR: {artist['name']}: {e}")
+                            processed_ids.add(artist["id"])
+                            state["in_progress"]["processed_ids"] = list(processed_ids)
+                            save_state(state)
+                            continue
+
+                        log(f"    Retrieved {len(albums)} album(s)")
+                        new_count = 0
+                        for album in albums:
+                            if album["album_type"] != "album":
+                                continue
+                            artist_ids = [a["id"] for a in album.get("artists", [])]
+                            if artist["id"] not in artist_ids:
+                                continue
+                            release_date = parse_release_date(album["release_date"])
+                            if release_date and release_date < cutoff:
+                                continue
+
+                            existing_entry = state["known_albums"].get(album["id"])
+                            needs_playlist_add = existing_entry is None or not existing_entry.get("added_to_playlist", False)
+                            record_album(state, artist, album, now_iso)
+                            entry = state["known_albums"][album["id"]]
+                            if needs_playlist_add and not is_effectively_excluded(entry) and playlist_id:
+                                try:
+                                    track_uris = get_album_track_uris(token, album["id"], state)
+                                    add_tracks_to_playlist(token, playlist_id, track_uris, state)
+                                    entry["added_to_playlist"] = True
+                                    entry["track_uris"] = track_uris
+                                    log(f"      Added {len(track_uris)} track(s) from '{album['name']}'")
+                                except LongRateLimitBlock:
+                                    raise
+                                except Exception as e:
+                                    entry["added_to_playlist"] = False
+                                    log(f"      ERROR adding '{album['name']}': {e}")
+                            new_count += 1
+
+                        if new_count:
+                            log(f"    Added {new_count} new album(s)")
+                        else:
+                            log("    No new albums added")
+                        state["artists"][artist["id"]] = {"name": artist["name"], "last_checked": now_iso}
                         processed_ids.add(artist["id"])
                         state["in_progress"]["processed_ids"] = list(processed_ids)
                         save_state(state)
-                        continue
-
-                    log(f"    Retrieved {len(albums)} album(s)")
-                    new_count = 0
-                    for album in albums:
-                        if album["album_type"] != "album":
-                            continue
-                        artist_ids = [a["id"] for a in album.get("artists", [])]
-                        if artist["id"] not in artist_ids:
-                            continue
-                        release_date = parse_release_date(album["release_date"])
-                        if release_date and release_date < cutoff:
-                            continue
-
-                        existing_entry = state["known_albums"].get(album["id"])
-                        needs_playlist_add = existing_entry is None or not existing_entry.get("added_to_playlist", False)
-                        record_album(state, artist, album, now_iso)
-                        entry = state["known_albums"][album["id"]]
-                        if needs_playlist_add and not is_effectively_excluded(entry) and playlist_id:
-                            try:
-                                track_uris = get_album_track_uris(token, album["id"], state)
-                                add_tracks_to_playlist(token, playlist_id, track_uris, state)
-                                entry["added_to_playlist"] = True
-                                entry["track_uris"] = track_uris
-                                log(f"      Added {len(track_uris)} track(s) from '{album['name']}'")
-                            except LongRateLimitBlock:
-                                raise
-                            except Exception as e:
-                                entry["added_to_playlist"] = False
-                                log(f"      ERROR adding '{album['name']}': {e}")
-                        new_count += 1
-
-                    if new_count:
-                        log(f"    Added {new_count} new album(s)")
-                    else:
-                        log("    No new albums added")
-                    state["artists"][artist["id"]] = {"name": artist["name"], "last_checked": now_iso}
-                    processed_ids.add(artist["id"])
-                    state["in_progress"]["processed_ids"] = list(processed_ids)
-                    save_state(state)
-            except LongRateLimitBlock as e:
-                log(f"Stopping scan -- {e.category} rate-limited until "
-                    f"{datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}. Progress saved.")
-                blocked_categories.append(e.category)
+                except LongRateLimitBlock as e:
+                    log(f"Stopping scan -- {e.category} rate-limited until "
+                        f"{datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}. Progress saved.")
+                    blocked_categories.append(e.category)
 
         if not blocked_categories:
             state["in_progress"] = None

@@ -395,6 +395,88 @@ class CreatePlaylistTests(unittest.TestCase):
         self.assertIn(("POST", "/v1/users/mock-user/playlists"), log)
 
 
+class RunScanBlockedCategoryTests(unittest.TestCase):
+    """A scan must not start a phase whose endpoint category is already
+    rate-limited: it should skip the phase, keep the persisted block, and
+    leave resume progress untouched so the remaining artists are checked on
+    a later scan."""
+
+    def setUp(self):
+        for path in (core.STATE_FILE, core.CONFIG_FILE, core.TOKEN_FILE):
+            if path.exists():
+                path.unlink()
+        core.clear_logs()
+        core.save_config({
+            "spotify_client_id": "cid", "spotify_client_secret": "cs",
+            "spotify_playlist_id": "", "interval_days": 3,
+            "min_request_interval": 0, "days_lookback": 365,
+            "cron_schedule": "0 6 * * *", "public_base_url": "http://x",
+            "flask_secret_key": "test-key",
+        })
+        core.save_refresh_token("test-token")
+
+    def tearDown(self):
+        if core.STATE_FILE.exists():
+            core.STATE_FILE.unlink()
+        core._cancel_event.clear()
+
+    def _seed_resume_state(self, blocked_until):
+        artists = [{"id": f"a{i}", "name": f"Artist {i}"} for i in range(10)]
+        core.save_state({
+            "artists": {},
+            "known_albums": {},
+            "in_progress": {
+                "due_ids": [a["id"] for a in artists],
+                "processed_ids": [a["id"] for a in artists[:5]],
+            },
+            "rate_limits": {"GET /artists/{id}/albums": blocked_until},
+        })
+        return artists
+
+    def test_skips_album_phase_when_album_category_blocked(self):
+        artists = self._seed_resume_state(int(time.time()) + 3600)
+        with patch.object(core, "get_access_token", return_value="tok"), \
+             patch.object(core, "get_followed_artists", return_value=artists) as followed, \
+             patch.object(core, "get_artist_albums",
+                          side_effect=AssertionError("album phase must be skipped")) as albums:
+            result = core.run_scan(days=365, interval_days=3, min_request_interval=0)
+
+        self.assertEqual(result["blocked_categories"], ["GET /artists/{id}/albums"])
+        albums.assert_not_called()
+        followed.assert_called_once()
+        state = core.load_state()
+        self.assertIn("GET /artists/{id}/albums", state["rate_limits"])
+        self.assertEqual(len(state["in_progress"]["processed_ids"]), 5)
+
+    def test_runs_album_phase_when_not_blocked(self):
+        artists = [{"id": f"a{i}", "name": f"Artist {i}"} for i in range(2)]
+        core.save_state({
+            "artists": {},
+            "known_albums": {},
+            "in_progress": None,
+            "rate_limits": {},
+        })
+        with patch.object(core, "get_access_token", return_value="tok"), \
+             patch.object(core, "get_followed_artists", return_value=artists), \
+             patch.object(core, "get_artist_albums", return_value=[]) as albums:
+            result = core.run_scan(days=365, interval_days=3, min_request_interval=0)
+
+        self.assertEqual(result["blocked_categories"], [])
+        self.assertEqual(albums.call_count, 2)
+        state = core.load_state()
+        self.assertEqual(state["rate_limits"], {})
+        self.assertIsNone(state["in_progress"])
+
+    def test_blocked_until_returns_future_only(self):
+        future = int(time.time()) + 3600
+        past = int(time.time()) - 3600
+        state = {"rate_limits": {"GET /artists/{id}/albums": future}}
+        self.assertEqual(core.blocked_until(state, "GET /artists/{id}/albums"), future)
+        state = {"rate_limits": {"GET /artists/{id}/albums": past}}
+        self.assertIsNone(core.blocked_until(state, "GET /artists/{id}/albums"))
+        self.assertIsNone(core.blocked_until({}, "GET /artists/{id}/albums"))
+
+
 def tearDownModule():
     shutil.rmtree(TEST_DIR, ignore_errors=True)
 
