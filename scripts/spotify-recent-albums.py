@@ -657,7 +657,7 @@ def main():
         log(f"Found {len(artists)} followed artists.")
     except LongRateLimitBlock as e:
         log(f"Skipping artist scan this run -- {e.category} is rate-limited "
-            f"until {datetime.fromtimestamp(e.retry_until, tz=timezone.utc)}.")
+            f"until {datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}.")
         blocked_categories.append(e.category)
 
     # --- Phase 2: due-artist scan loop (only if phase 1 succeeded) ---
@@ -753,7 +753,7 @@ def main():
 
         except LongRateLimitBlock as e:
             log(f"Stopping artist scan -- {e.category} is rate-limited until "
-                f"{datetime.fromtimestamp(e.retry_until, tz=timezone.utc)}. "
+                f"{datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}. "
                 f"Progress so far is saved; will resume next run.")
             blocked_categories.append(e.category)
 
@@ -766,7 +766,7 @@ def main():
         prune_playlist(token, state, args.days, os.environ.get("SPOTIFY_PLAYLIST_ID"))
     except LongRateLimitBlock as e:
         log(f"Skipping playlist prune this run -- {e.category} is rate-limited "
-            f"until {datetime.fromtimestamp(e.retry_until, tz=timezone.utc)}.")
+            f"until {datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}.")
         blocked_categories.append(e.category)
 
     # --- Phase 4: report (no network calls, always runs) ---

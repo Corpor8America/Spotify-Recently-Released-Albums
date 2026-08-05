@@ -91,8 +91,8 @@ def create_playlist():
 # --- Dashboard ---------------------------------------------------------------
 
 def format_rate_limit_until(ts):
-    now = datetime.now(timezone.utc)
-    until = datetime.fromtimestamp(ts, tz=timezone.utc)
+    now = datetime.now().astimezone()
+    until = datetime.fromtimestamp(ts).astimezone()
     remaining = max(0, int(ts - now.timestamp()))
     if remaining >= 3600:
         relative = f"about {(remaining + 3599) // 3600}h"
@@ -100,7 +100,7 @@ def format_rate_limit_until(ts):
         relative = f"about {(remaining + 59) // 60}m"
     else:
         relative = f"{remaining}s"
-    return f"{until.strftime('%Y-%m-%d %I:%M:%S %p UTC')} ({relative})"
+    return f"{until.strftime('%Y-%m-%d %I:%M:%S %p')} ({relative})"
 
 
 @app.route("/")

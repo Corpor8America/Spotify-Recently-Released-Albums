@@ -217,7 +217,7 @@ def spotify_request(method, token, url, state, params=None, json_data=None, retr
             save_state(state)
             log(f"  Rate limited on {method} {url} (category: {category}); "
                 f"Retry-After={retry_after_raw!r}; blocked for {retry_after}s "
-                f"until {datetime.fromtimestamp(retry_until, tz=timezone.utc).isoformat()}.")
+                f"until {datetime.fromtimestamp(retry_until).astimezone().isoformat()}.")
             raise LongRateLimitBlock(category, retry_until)
         if retries <= 0:
             raise Exception("Rate limited - max retries exceeded")
@@ -659,7 +659,7 @@ def run_scan(days=None, interval_days=None, min_request_interval=None, market="U
             log(f"Found {len(artists)} followed artists.")
         except LongRateLimitBlock as e:
             log(f"Skipping artist scan -- {e.category} rate-limited until "
-                f"{datetime.fromtimestamp(e.retry_until, tz=timezone.utc)}.")
+                f"{datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}.")
             blocked_categories.append(e.category)
             artists = []
 
@@ -736,7 +736,7 @@ def run_scan(days=None, interval_days=None, min_request_interval=None, market="U
                     save_state(state)
             except LongRateLimitBlock as e:
                 log(f"Stopping scan -- {e.category} rate-limited until "
-                    f"{datetime.fromtimestamp(e.retry_until, tz=timezone.utc)}. Progress saved.")
+                    f"{datetime.fromtimestamp(e.retry_until).astimezone().strftime('%Y-%m-%d %I:%M:%S %p')}. Progress saved.")
                 blocked_categories.append(e.category)
 
         if not blocked_categories:
