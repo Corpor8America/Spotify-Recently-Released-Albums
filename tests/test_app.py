@@ -170,7 +170,7 @@ class AppRoutesTests(unittest.TestCase):
 
     # --- scan actions --------------------------------------------------------
 
-    @patch("app.core.run_scan")
+    @patch("app.core.start_scan")
     def test_run_now_triggers_scan(self, mock_run):
         response = self.client.post("/run", follow_redirects=False)
         self.assertEqual(response.status_code, 302)

@@ -134,6 +134,35 @@ class RecordAlbumTests(unittest.TestCase):
         self.assertIsNone(state["known_albums"]["a2"]["manual_override"])
 
 
+class ReorderPlaylistTests(unittest.TestCase):
+    def test_reorder_clears_current_playlist_and_rebuilds_from_state(self):
+        state = {
+            "known_albums": {
+                "new": {
+                    "release_date": "2026-07-01", "added_to_playlist": True,
+                    "auto_excluded": False, "track_uris": ["new-1", "new-2"],
+                },
+                "old": {
+                    "release_date": "2026-05-01", "added_to_playlist": True,
+                    "auto_excluded": False, "track_uris": ["old-1", "old-2"],
+                },
+            }
+        }
+        # These stale items must be cleared; only state-backed tracks return.
+        current = ["new-1", "old-1", "external", "new-2", "old-2", "new-1"]
+
+        with patch.object(core, "get_playlist_track_uris", return_value=current), \
+             patch.object(core, "remove_tracks_from_playlist") as remove, \
+             patch.object(core, "add_tracks_to_playlist") as add:
+            core.reorder_playlist("token", state, "playlist")
+
+        remove.assert_called_once_with("token", "playlist", current, state)
+        add.assert_called_once_with(
+            "token", "playlist",
+            ["old-1", "old-2", "new-1", "new-2"], state,
+        )
+
+
 class GetDueArtistsTests(unittest.TestCase):
     def test_all_due_when_no_history(self):
         artists = [{"id": "a1", "name": "A"}, {"id": "a2", "name": "B"}]

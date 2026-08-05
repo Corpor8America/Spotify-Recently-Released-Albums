@@ -167,11 +167,11 @@ def callback():
 @app.route("/run", methods=["POST"])
 def run_now():
     c = cfg()
-    threading.Thread(target=core.run_scan, kwargs={
-        "days": c["days_lookback"],
-        "interval_days": c["interval_days"],
-        "min_request_interval": c["min_request_interval"],
-    }, daemon=True).start()
+    core.start_scan(
+        days=c["days_lookback"],
+        interval_days=c["interval_days"],
+        min_request_interval=c["min_request_interval"],
+    )
     return redirect(url_for("dashboard"))
 
 
@@ -183,12 +183,15 @@ def cancel_scan():
 
 @app.route("/reorder", methods=["POST"])
 def reorder_playlist():
-    threading.Thread(target=_do_reorder, daemon=True).start()
+    if not core.reorder_lock.acquire(blocking=False):
+        core.log("Reorder already in progress.")
+        return redirect(url_for("dashboard"))
+    threading.Thread(target=_do_reorder, kwargs={"lock_held": True}, daemon=True).start()
     return redirect(url_for("dashboard"))
 
 
-def _do_reorder():
-    if not core.reorder_lock.acquire(blocking=False):
+def _do_reorder(lock_held=False):
+    if not lock_held and not core.reorder_lock.acquire(blocking=False):
         core.log("Reorder already in progress.")
         return
     try:

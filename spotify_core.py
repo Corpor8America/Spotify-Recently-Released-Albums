@@ -470,6 +470,25 @@ def get_album_track_uris(token, album_id, state):
     return uris
 
 
+def get_playlist_track_uris(token, playlist_id, state):
+    """Return every track URI currently in a playlist, including duplicates."""
+    uris = []
+    url = f"{SPOTIFY_API_BASE}/playlists/{playlist_id}/items"
+    limit, offset = 100, 0
+    while True:
+        data = spotify_get(token, url, state, {"limit": limit, "offset": offset})
+        items = data.get("items", [])
+        uris.extend(
+            item["track"]["uri"] for item in items
+            if item.get("track") and item["track"].get("uri")
+        )
+        total = data.get("total")
+        if not items or len(items) < limit or (total is not None and len(uris) >= total):
+            break
+        offset += limit
+    return uris
+
+
 def add_tracks_to_playlist(token, playlist_id, track_uris, state):
     url = f"{SPOTIFY_API_BASE}/playlists/{playlist_id}/items"
     for i in range(0, len(track_uris), 100):
@@ -550,10 +569,15 @@ def reorder_playlist(token, state, playlist_id):
         log("No playlisted tracks found to reorder.")
         return
 
+    # Rebuild from persisted album state, but fetch the existing playlist so
+    # the delete phase truly clears every item before the replacement is added.
+    current_uris = get_playlist_track_uris(token, playlist_id, state)
+
     # Dev Mode apps can't PUT (replace) a playlist. Delete all current
     # tracks then POST them back in the desired order.
     log(f"Reordering {len(ordered_uris)} track(s) from {len(albums)} album(s)...")
-    remove_tracks_from_playlist(token, playlist_id, ordered_uris, state)
+    if current_uris:
+        remove_tracks_from_playlist(token, playlist_id, current_uris, state)
     add_tracks_to_playlist(token, playlist_id, ordered_uris, state)
     log("Playlist reorder complete.")
 
@@ -573,7 +597,26 @@ def create_playlist(token, name, description=None):
 
 # --- The scan itself (equivalent of the old main()) ------------------------
 
-def run_scan(days=None, interval_days=None, min_request_interval=None, market="US"):
+def start_scan(days=None, interval_days=None, min_request_interval=None, market="US"):
+    """Reserve the scan lock before starting its background thread."""
+    if not run_lock.acquire(blocking=False):
+        log("Scan already in progress -- skipping this trigger.")
+        return False
+    threading.Thread(
+        target=run_scan,
+        kwargs={
+            "days": days,
+            "interval_days": interval_days,
+            "min_request_interval": min_request_interval,
+            "market": market,
+            "lock_held": True,
+        },
+        daemon=True,
+    ).start()
+    return True
+
+
+def run_scan(days=None, interval_days=None, min_request_interval=None, market="US", lock_held=False):
     """Runs one full scan pass: fetch followed artists, check due artists,
     record + playlist-sync new albums, prune the playlist. Safe to call
     from either the scheduler or a manual 'Run now' click -- run_lock
@@ -586,7 +629,7 @@ def run_scan(days=None, interval_days=None, min_request_interval=None, market="U
         else _cfg.get("min_request_interval", DEFAULT_MIN_REQUEST_INTERVAL_SECONDS)
     )
 
-    if not run_lock.acquire(blocking=False):
+    if not lock_held and not run_lock.acquire(blocking=False):
         log("Scan already in progress -- skipping this trigger.")
         return {"status": "already_running"}
 

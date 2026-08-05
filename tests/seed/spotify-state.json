@@ -1,1 +1,588 @@
-{"artists": {}, "known_albums": {}, "in_progress": null, "rate_limits": {}}
+{
+  "artists": {
+    "artist0000": {
+      "name": "Test Artist 0",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0001": {
+      "name": "Test Artist 1",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0002": {
+      "name": "Test Artist 2",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0003": {
+      "name": "Test Artist 3",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0004": {
+      "name": "Test Artist 4",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0005": {
+      "name": "Test Artist 5",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0006": {
+      "name": "Test Artist 6",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0007": {
+      "name": "Test Artist 7",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0008": {
+      "name": "Test Artist 8",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0009": {
+      "name": "Test Artist 9",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0010": {
+      "name": "Test Artist 10",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0011": {
+      "name": "Test Artist 11",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0012": {
+      "name": "Test Artist 12",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0013": {
+      "name": "Test Artist 13",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0014": {
+      "name": "Test Artist 14",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0015": {
+      "name": "Test Artist 15",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0016": {
+      "name": "Test Artist 16",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0017": {
+      "name": "Test Artist 17",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0018": {
+      "name": "Test Artist 18",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    },
+    "artist0019": {
+      "name": "Test Artist 19",
+      "last_checked": "2026-08-05T02:28:04.656455+00:00"
+    }
+  },
+  "known_albums": {
+    "album_artist0000_000": {
+      "artist": "Test Artist 0",
+      "artist_id": "artist0000",
+      "name": "Album 0 by Artist 0",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0000_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0000_000_00",
+        "spotify:track:album_artist0000_000_01",
+        "spotify:track:album_artist0000_000_02",
+        "spotify:track:album_artist0000_000_03",
+        "spotify:track:album_artist0000_000_04",
+        "spotify:track:album_artist0000_000_05",
+        "spotify:track:album_artist0000_000_06",
+        "spotify:track:album_artist0000_000_07",
+        "spotify:track:album_artist0000_000_08",
+        "spotify:track:album_artist0000_000_09"
+      ]
+    },
+    "album_artist0001_000": {
+      "artist": "Test Artist 1",
+      "artist_id": "artist0001",
+      "name": "Album 0 by Artist 1",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0001_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0001_000_00",
+        "spotify:track:album_artist0001_000_01",
+        "spotify:track:album_artist0001_000_02",
+        "spotify:track:album_artist0001_000_03",
+        "spotify:track:album_artist0001_000_04",
+        "spotify:track:album_artist0001_000_05",
+        "spotify:track:album_artist0001_000_06",
+        "spotify:track:album_artist0001_000_07",
+        "spotify:track:album_artist0001_000_08",
+        "spotify:track:album_artist0001_000_09"
+      ]
+    },
+    "album_artist0002_000": {
+      "artist": "Test Artist 2",
+      "artist_id": "artist0002",
+      "name": "Album 0 by Artist 2",
+      "type": "album",
+      "release_date": "2026-05-01",
+      "url": "https://open.spotify.com/album/album_artist0002_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0002_000_00",
+        "spotify:track:album_artist0002_000_01",
+        "spotify:track:album_artist0002_000_02",
+        "spotify:track:album_artist0002_000_03",
+        "spotify:track:album_artist0002_000_04",
+        "spotify:track:album_artist0002_000_05",
+        "spotify:track:album_artist0002_000_06",
+        "spotify:track:album_artist0002_000_07",
+        "spotify:track:album_artist0002_000_08",
+        "spotify:track:album_artist0002_000_09"
+      ]
+    },
+    "album_artist0003_000": {
+      "artist": "Test Artist 3",
+      "artist_id": "artist0003",
+      "name": "Album 0 by Artist 3",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0003_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0003_000_00",
+        "spotify:track:album_artist0003_000_01",
+        "spotify:track:album_artist0003_000_02",
+        "spotify:track:album_artist0003_000_03",
+        "spotify:track:album_artist0003_000_04",
+        "spotify:track:album_artist0003_000_05",
+        "spotify:track:album_artist0003_000_06",
+        "spotify:track:album_artist0003_000_07",
+        "spotify:track:album_artist0003_000_08",
+        "spotify:track:album_artist0003_000_09"
+      ]
+    },
+    "album_artist0004_000": {
+      "artist": "Test Artist 4",
+      "artist_id": "artist0004",
+      "name": "Album 0 by Artist 4",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0004_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0004_000_00",
+        "spotify:track:album_artist0004_000_01",
+        "spotify:track:album_artist0004_000_02",
+        "spotify:track:album_artist0004_000_03",
+        "spotify:track:album_artist0004_000_04",
+        "spotify:track:album_artist0004_000_05",
+        "spotify:track:album_artist0004_000_06",
+        "spotify:track:album_artist0004_000_07",
+        "spotify:track:album_artist0004_000_08",
+        "spotify:track:album_artist0004_000_09"
+      ]
+    },
+    "album_artist0005_000": {
+      "artist": "Test Artist 5",
+      "artist_id": "artist0005",
+      "name": "Album 0 by Artist 5",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0005_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0005_000_00",
+        "spotify:track:album_artist0005_000_01",
+        "spotify:track:album_artist0005_000_02",
+        "spotify:track:album_artist0005_000_03",
+        "spotify:track:album_artist0005_000_04",
+        "spotify:track:album_artist0005_000_05",
+        "spotify:track:album_artist0005_000_06",
+        "spotify:track:album_artist0005_000_07",
+        "spotify:track:album_artist0005_000_08",
+        "spotify:track:album_artist0005_000_09"
+      ]
+    },
+    "album_artist0006_000": {
+      "artist": "Test Artist 6",
+      "artist_id": "artist0006",
+      "name": "Album 0 by Artist 6",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0006_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0006_000_00",
+        "spotify:track:album_artist0006_000_01",
+        "spotify:track:album_artist0006_000_02",
+        "spotify:track:album_artist0006_000_03",
+        "spotify:track:album_artist0006_000_04",
+        "spotify:track:album_artist0006_000_05",
+        "spotify:track:album_artist0006_000_06",
+        "spotify:track:album_artist0006_000_07",
+        "spotify:track:album_artist0006_000_08",
+        "spotify:track:album_artist0006_000_09"
+      ]
+    },
+    "album_artist0007_000": {
+      "artist": "Test Artist 7",
+      "artist_id": "artist0007",
+      "name": "Album 0 by Artist 7",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0007_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0007_000_00",
+        "spotify:track:album_artist0007_000_01",
+        "spotify:track:album_artist0007_000_02",
+        "spotify:track:album_artist0007_000_03",
+        "spotify:track:album_artist0007_000_04",
+        "spotify:track:album_artist0007_000_05",
+        "spotify:track:album_artist0007_000_06",
+        "spotify:track:album_artist0007_000_07",
+        "spotify:track:album_artist0007_000_08",
+        "spotify:track:album_artist0007_000_09"
+      ]
+    },
+    "album_artist0008_000": {
+      "artist": "Test Artist 8",
+      "artist_id": "artist0008",
+      "name": "Album 0 by Artist 8",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0008_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0008_000_00",
+        "spotify:track:album_artist0008_000_01",
+        "spotify:track:album_artist0008_000_02",
+        "spotify:track:album_artist0008_000_03",
+        "spotify:track:album_artist0008_000_04",
+        "spotify:track:album_artist0008_000_05",
+        "spotify:track:album_artist0008_000_06",
+        "spotify:track:album_artist0008_000_07",
+        "spotify:track:album_artist0008_000_08",
+        "spotify:track:album_artist0008_000_09"
+      ]
+    },
+    "album_artist0009_000": {
+      "artist": "Test Artist 9",
+      "artist_id": "artist0009",
+      "name": "Album 0 by Artist 9",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0009_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0009_000_00",
+        "spotify:track:album_artist0009_000_01",
+        "spotify:track:album_artist0009_000_02",
+        "spotify:track:album_artist0009_000_03",
+        "spotify:track:album_artist0009_000_04",
+        "spotify:track:album_artist0009_000_05",
+        "spotify:track:album_artist0009_000_06",
+        "spotify:track:album_artist0009_000_07",
+        "spotify:track:album_artist0009_000_08",
+        "spotify:track:album_artist0009_000_09"
+      ]
+    },
+    "album_artist0010_000": {
+      "artist": "Test Artist 10",
+      "artist_id": "artist0010",
+      "name": "Album 0 by Artist 10",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0010_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0010_000_00",
+        "spotify:track:album_artist0010_000_01",
+        "spotify:track:album_artist0010_000_02",
+        "spotify:track:album_artist0010_000_03",
+        "spotify:track:album_artist0010_000_04",
+        "spotify:track:album_artist0010_000_05",
+        "spotify:track:album_artist0010_000_06",
+        "spotify:track:album_artist0010_000_07",
+        "spotify:track:album_artist0010_000_08",
+        "spotify:track:album_artist0010_000_09"
+      ]
+    },
+    "album_artist0011_000": {
+      "artist": "Test Artist 11",
+      "artist_id": "artist0011",
+      "name": "Album 0 by Artist 11",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0011_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0011_000_00",
+        "spotify:track:album_artist0011_000_01",
+        "spotify:track:album_artist0011_000_02",
+        "spotify:track:album_artist0011_000_03",
+        "spotify:track:album_artist0011_000_04",
+        "spotify:track:album_artist0011_000_05",
+        "spotify:track:album_artist0011_000_06",
+        "spotify:track:album_artist0011_000_07",
+        "spotify:track:album_artist0011_000_08",
+        "spotify:track:album_artist0011_000_09"
+      ]
+    },
+    "album_artist0012_000": {
+      "artist": "Test Artist 12",
+      "artist_id": "artist0012",
+      "name": "Album 0 by Artist 12",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0012_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0012_000_00",
+        "spotify:track:album_artist0012_000_01",
+        "spotify:track:album_artist0012_000_02",
+        "spotify:track:album_artist0012_000_03",
+        "spotify:track:album_artist0012_000_04",
+        "spotify:track:album_artist0012_000_05",
+        "spotify:track:album_artist0012_000_06",
+        "spotify:track:album_artist0012_000_07",
+        "spotify:track:album_artist0012_000_08",
+        "spotify:track:album_artist0012_000_09"
+      ]
+    },
+    "album_artist0013_000": {
+      "artist": "Test Artist 13",
+      "artist_id": "artist0013",
+      "name": "Album 0 by Artist 13",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0013_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0013_000_00",
+        "spotify:track:album_artist0013_000_01",
+        "spotify:track:album_artist0013_000_02",
+        "spotify:track:album_artist0013_000_03",
+        "spotify:track:album_artist0013_000_04",
+        "spotify:track:album_artist0013_000_05",
+        "spotify:track:album_artist0013_000_06",
+        "spotify:track:album_artist0013_000_07",
+        "spotify:track:album_artist0013_000_08",
+        "spotify:track:album_artist0013_000_09"
+      ]
+    },
+    "album_artist0014_000": {
+      "artist": "Test Artist 14",
+      "artist_id": "artist0014",
+      "name": "Album 0 by Artist 14",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0014_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0014_000_00",
+        "spotify:track:album_artist0014_000_01",
+        "spotify:track:album_artist0014_000_02",
+        "spotify:track:album_artist0014_000_03",
+        "spotify:track:album_artist0014_000_04",
+        "spotify:track:album_artist0014_000_05",
+        "spotify:track:album_artist0014_000_06",
+        "spotify:track:album_artist0014_000_07",
+        "spotify:track:album_artist0014_000_08",
+        "spotify:track:album_artist0014_000_09"
+      ]
+    },
+    "album_artist0015_000": {
+      "artist": "Test Artist 15",
+      "artist_id": "artist0015",
+      "name": "Album 0 by Artist 15",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0015_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0015_000_00",
+        "spotify:track:album_artist0015_000_01",
+        "spotify:track:album_artist0015_000_02",
+        "spotify:track:album_artist0015_000_03",
+        "spotify:track:album_artist0015_000_04",
+        "spotify:track:album_artist0015_000_05",
+        "spotify:track:album_artist0015_000_06",
+        "spotify:track:album_artist0015_000_07",
+        "spotify:track:album_artist0015_000_08",
+        "spotify:track:album_artist0015_000_09"
+      ]
+    },
+    "album_artist0016_000": {
+      "artist": "Test Artist 16",
+      "artist_id": "artist0016",
+      "name": "Album 0 by Artist 16",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0016_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0016_000_00",
+        "spotify:track:album_artist0016_000_01",
+        "spotify:track:album_artist0016_000_02",
+        "spotify:track:album_artist0016_000_03",
+        "spotify:track:album_artist0016_000_04",
+        "spotify:track:album_artist0016_000_05",
+        "spotify:track:album_artist0016_000_06",
+        "spotify:track:album_artist0016_000_07",
+        "spotify:track:album_artist0016_000_08",
+        "spotify:track:album_artist0016_000_09"
+      ]
+    },
+    "album_artist0017_000": {
+      "artist": "Test Artist 17",
+      "artist_id": "artist0017",
+      "name": "Album 0 by Artist 17",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0017_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0017_000_00",
+        "spotify:track:album_artist0017_000_01",
+        "spotify:track:album_artist0017_000_02",
+        "spotify:track:album_artist0017_000_03",
+        "spotify:track:album_artist0017_000_04",
+        "spotify:track:album_artist0017_000_05",
+        "spotify:track:album_artist0017_000_06",
+        "spotify:track:album_artist0017_000_07",
+        "spotify:track:album_artist0017_000_08",
+        "spotify:track:album_artist0017_000_09"
+      ]
+    },
+    "album_artist0018_000": {
+      "artist": "Test Artist 18",
+      "artist_id": "artist0018",
+      "name": "Album 0 by Artist 18",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0018_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0018_000_00",
+        "spotify:track:album_artist0018_000_01",
+        "spotify:track:album_artist0018_000_02",
+        "spotify:track:album_artist0018_000_03",
+        "spotify:track:album_artist0018_000_04",
+        "spotify:track:album_artist0018_000_05",
+        "spotify:track:album_artist0018_000_06",
+        "spotify:track:album_artist0018_000_07",
+        "spotify:track:album_artist0018_000_08",
+        "spotify:track:album_artist0018_000_09"
+      ]
+    },
+    "album_artist0019_000": {
+      "artist": "Test Artist 19",
+      "artist_id": "artist0019",
+      "name": "Album 0 by Artist 19",
+      "type": "album",
+      "release_date": "2026-07-01",
+      "url": "https://open.spotify.com/album/album_artist0019_000",
+      "total_tracks": 10,
+      "first_seen": "2026-08-05T02:28:04.656455+00:00",
+      "auto_excluded": false,
+      "manual_override": null,
+      "added_to_playlist": true,
+      "track_uris": [
+        "spotify:track:album_artist0019_000_00",
+        "spotify:track:album_artist0019_000_01",
+        "spotify:track:album_artist0019_000_02",
+        "spotify:track:album_artist0019_000_03",
+        "spotify:track:album_artist0019_000_04",
+        "spotify:track:album_artist0019_000_05",
+        "spotify:track:album_artist0019_000_06",
+        "spotify:track:album_artist0019_000_07",
+        "spotify:track:album_artist0019_000_08",
+        "spotify:track:album_artist0019_000_09"
+      ]
+    }
+  },
+  "in_progress": null,
+  "rate_limits": {}
+}
