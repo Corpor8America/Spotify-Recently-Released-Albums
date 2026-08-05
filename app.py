@@ -1,4 +1,5 @@
 import os
+import re
 import secrets
 import threading
 from datetime import datetime, timezone
@@ -42,22 +43,64 @@ def _get_creds():
     return c["spotify_client_id"], c["spotify_client_secret"]
 
 
+def _validate_cron_schedule(cron_schedule):
+    """Return the 5 cron fields if the schedule is valid, else raise ValueError."""
+    from apscheduler.triggers.cron import CronTrigger
+
+    parts = cron_schedule.split()
+    if len(parts) != 5:
+        raise ValueError("cron_schedule must have 5 fields (minute hour day month day-of-week)")
+    try:
+        CronTrigger(minute=parts[0], hour=parts[1], day=parts[2], month=parts[3], day_of_week=parts[4])
+    except Exception as e:
+        raise ValueError(f"invalid cron_schedule {cron_schedule!r}: {e}")
+    return parts
+
+
+def _parse_int_field(form, key, default, min_value):
+    raw = form.get(key)
+    try:
+        value = int(raw) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        raise ValueError(f"{key} must be an integer")
+    if value < min_value:
+        raise ValueError(f"{key} must be >= {min_value}")
+    return value
+
+
+def _parse_float_field(form, key, default, min_value):
+    raw = form.get(key)
+    try:
+        value = float(raw) if raw not in (None, "") else default
+    except (TypeError, ValueError):
+        raise ValueError(f"{key} must be a number")
+    if value < min_value:
+        raise ValueError(f"{key} must be >= {min_value}")
+    return value
+
+
 # --- Settings / first-run setup ---------------------------------------------
 
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     if request.method == "POST":
         existing = cfg()
-        c = {
-            "spotify_client_id": (request.form.get("spotify_client_id") or existing["spotify_client_id"]).strip(),
-            "spotify_client_secret": (request.form.get("spotify_client_secret") or existing["spotify_client_secret"]).strip(),
-            "spotify_playlist_id": request.form.get("spotify_playlist_id", "").strip(),
-            "interval_days": int(request.form.get("interval_days", existing["interval_days"])),
-            "min_request_interval": float(request.form.get("min_request_interval", existing["min_request_interval"])),
-            "days_lookback": int(request.form.get("days_lookback", existing["days_lookback"])),
-            "cron_schedule": request.form.get("cron_schedule", existing["cron_schedule"]).strip(),
-            "public_base_url": request.form.get("public_base_url", existing["public_base_url"]).rstrip("/"),
-        }
+        try:
+            c = {
+                "spotify_client_id": (request.form.get("spotify_client_id") or existing["spotify_client_id"]).strip(),
+                "spotify_client_secret": (request.form.get("spotify_client_secret") or existing["spotify_client_secret"]).strip(),
+                "spotify_playlist_id": request.form.get("spotify_playlist_id", "").strip(),
+                "interval_days": _parse_int_field(request.form, "interval_days", existing["interval_days"], min_value=1),
+                "min_request_interval": _parse_float_field(request.form, "min_request_interval", existing["min_request_interval"], min_value=0),
+                "days_lookback": _parse_int_field(request.form, "days_lookback", existing["days_lookback"], min_value=0),
+                "cron_schedule": request.form.get("cron_schedule", existing["cron_schedule"]).strip(),
+                "public_base_url": request.form.get("public_base_url", existing["public_base_url"]).rstrip("/"),
+            }
+            _validate_cron_schedule(c["cron_schedule"])
+            if c["spotify_playlist_id"] and not re.fullmatch(r"[A-Za-z0-9]{15,}", c["spotify_playlist_id"]):
+                raise ValueError("spotify_playlist_id must be alphanumeric (or empty)")
+        except ValueError as e:
+            return f"Invalid settings: {e}", 400
         core.save_config(c)
         core.log("Settings saved.")
         return redirect(url_for("dashboard"))
@@ -201,17 +244,24 @@ def _do_reorder(lock_held=False):
         core.log("Reorder already in progress.")
         return
     try:
-        c = cfg()
-        core.rate_limiter.min_interval_seconds = c["min_request_interval"]
-        client_id, client_secret = _get_creds()
-        refresh_token = core.load_refresh_token()
-        if not all([client_id, client_secret, refresh_token]):
-            core.log("Cannot reorder -- not connected.")
-            return
-        token = core.get_access_token(client_id, client_secret, refresh_token)
-        state = core.load_state()
-        playlist_id = c["spotify_playlist_id"]
-        core.reorder_playlist(token, state, playlist_id)
+        # Reorder is destructive (delete-all then re-add), so it must not
+        # overlap a scan's playlist additions/pruning. Wait for any active
+        # scan to finish; run_lock also prevents a new scan from starting.
+        core.run_lock.acquire(blocking=True)
+        try:
+            c = cfg()
+            core.rate_limiter.min_interval_seconds = c["min_request_interval"]
+            client_id, client_secret = _get_creds()
+            refresh_token = core.load_refresh_token()
+            if not all([client_id, client_secret, refresh_token]):
+                core.log("Cannot reorder -- not connected.")
+                return
+            token = core.get_access_token(client_id, client_secret, refresh_token)
+            state = core.load_state()
+            playlist_id = c["spotify_playlist_id"]
+            core.reorder_playlist(token, state, playlist_id)
+        finally:
+            core.run_lock.release()
     finally:
         core.reorder_lock.release()
 
@@ -221,17 +271,22 @@ def _do_reorder(lock_held=False):
 @app.route("/albums/<album_id>/override", methods=["POST"])
 def set_override(album_id):
     value = request.form.get("value")
-    state = core.load_state()
-    album = state.get("known_albums", {}).get(album_id)
-    if not album:
+
+    def _mutate(state):
+        album = state.get("known_albums", {}).get(album_id)
+        if not album:
+            return None
+        if value == "true":
+            album["manual_override"] = True
+        elif value == "false":
+            album["manual_override"] = False
+        else:
+            album["manual_override"] = None
+        return state
+
+    state = core.update_state(_mutate)
+    if album_id not in state.get("known_albums", {}):
         return "Unknown album", 404
-    if value == "true":
-        album["manual_override"] = True
-    elif value == "false":
-        album["manual_override"] = False
-    else:
-        album["manual_override"] = None
-    core.save_state(state)
     return redirect(url_for("dashboard"))
 
 
@@ -264,7 +319,7 @@ def _start_scheduler():
     c = cfg()
     cron_expr = c["cron_schedule"]
     try:
-        minute, hour, day, month, dow = cron_expr.split()
+        minute, hour, day, month, dow = _validate_cron_schedule(cron_expr)
     except ValueError:
         core.log(f"Invalid cron schedule {cron_expr!r}; using default 0 6 * * *")
         minute, hour, day, month, dow = "0", "6", "*", "*", "*"

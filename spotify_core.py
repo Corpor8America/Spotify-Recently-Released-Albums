@@ -20,6 +20,7 @@ import os
 import re
 import json
 import time
+import tempfile
 import threading
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
@@ -110,9 +111,10 @@ def clear_logs():
 def cancel_scan():
     _cancel_event.set()
     # Also clear any in-progress state so a resume doesn't pick it up.
-    state = load_state()
-    state["in_progress"] = None
-    save_state(state)
+    def _clear_progress(state):
+        state["in_progress"] = None
+        return state
+    update_state(_clear_progress)
 
 
 def log(message):
@@ -206,7 +208,8 @@ def spotify_request(method, token, url, state, params=None, json_data=None, retr
     headers = {"Authorization": f"Bearer {token}"}
     if json_data is not None:
         headers["Content-Type"] = "application/json"
-    resp = requests.request(method, url, headers=headers, params=params, json=json_data)
+    resp = requests.request(method, url, headers=headers, params=params, json=json_data,
+                            timeout=(5, 30))
 
     if resp.status_code == 429:
         retry_after_raw = resp.headers.get("Retry-After", str(backoff))
@@ -266,7 +269,7 @@ def exchange_code_for_token(client_id, client_secret, code, redirect_uri):
         "redirect_uri": redirect_uri,
         "client_id": client_id,
         "client_secret": client_secret,
-    })
+    }, timeout=(5, 30))
     resp.raise_for_status()
     return resp.json()  # contains access_token + refresh_token
 
@@ -277,7 +280,7 @@ def get_access_token(client_id, client_secret, refresh_token):
         "refresh_token": refresh_token,
         "client_id": client_id,
         "client_secret": client_secret,
-    })
+    }, timeout=(5, 30))
     resp.raise_for_status()
     return resp.json()["access_token"]
 
@@ -305,15 +308,21 @@ def is_connected():
 
 # --- State file --------------------------------------------------------
 
+# Serializes load/save (and read-modify-write via update_state) so
+# concurrent writers cannot corrupt or overwrite each other's changes.
+_state_lock = threading.RLock()
+
+
 def load_state():
-    if STATE_FILE.exists():
-        with open(STATE_FILE) as f:
-            state = json.load(f)
-            state.setdefault("rate_limits", {})
-            state.setdefault("artists", {})
-            state.setdefault("known_albums", {})
-            state.setdefault("in_progress", None)
-            return state
+    with _state_lock:
+        if STATE_FILE.exists():
+            with open(STATE_FILE) as f:
+                state = json.load(f)
+                state.setdefault("rate_limits", {})
+                state.setdefault("artists", {})
+                state.setdefault("known_albums", {})
+                state.setdefault("in_progress", None)
+                return state
     return {"artists": {}, "known_albums": {}, "in_progress": None, "rate_limits": {}}
 
 
@@ -328,11 +337,35 @@ def clear_expired_rate_limits(state, now=None):
 
 
 def save_state(state):
-    tmp = STATE_FILE.with_suffix(".tmp")
-    tmp.parent.mkdir(parents=True, exist_ok=True)
-    with open(tmp, "w") as f:
-        json.dump(state, f, indent=2)
-    tmp.replace(STATE_FILE)  # atomic on POSIX, avoids a torn write on crash
+    with _state_lock:
+        STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        fd, tmp = tempfile.mkstemp(prefix="spotify-state.", suffix=".tmp", dir=STATE_FILE.parent)
+        try:
+            with os.fdopen(fd, "w") as f:
+                json.dump(state, f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp, STATE_FILE)  # atomic on POSIX, avoids a torn write on crash
+        except BaseException:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+            raise
+
+
+def update_state(mutator):
+    """Atomically load -> mutate -> save. ``mutator`` receives the loaded
+    state dict; if it returns the state dict the change is persisted, and
+    returning None leaves the file untouched. Returns the (possibly mutated)
+    state dict."""
+    with _state_lock:
+        state = load_state()
+        result = mutator(state)
+        if result is not None:
+            state = result
+            save_state(state)
+        return state
 
 
 def get_due_artists(artists, state, interval_days):
