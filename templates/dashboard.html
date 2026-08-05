@@ -149,3 +149,10 @@
 
 <p class="footer-text">version {{ version }}</p>
 {% endblock %}
+
+{% block scripts %}
+<script>
+  var logBox = document.querySelector('.log');
+  if (logBox) logBox.scrollTop = logBox.scrollHeight;
+</script>
+{% endblock %}

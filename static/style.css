@@ -4,38 +4,41 @@
 
 :root {
   /* MD3 Dark Theme Colors (Spotify Inspired) */
-  --md-sys-color-primary: #1DB954; /* Spotify Green */
+  --md-sys-color-primary: #1DB954;
+  /* Spotify Green */
   --md-sys-color-on-primary: #003914;
   --md-sys-color-primary-container: #005320;
   --md-sys-color-on-primary-container: #89F8A8;
-  
+
   --md-sys-color-secondary: #BFC8CB;
   --md-sys-color-on-secondary: #2A3134;
   --md-sys-color-secondary-container: #333333;
   --md-sys-color-on-secondary-container: #E2E2E6;
-  
-  --md-sys-color-background: #121212; /* Spotify Dark Background */
+
+  --md-sys-color-background: #121212;
+  /* Spotify Dark Background */
   --md-sys-color-on-background: #F0F0F0;
-  
-  --md-sys-color-surface: #181818; /* Surface card color */
+
+  --md-sys-color-surface: #181818;
+  /* Surface card color */
   --md-sys-color-on-surface: #F0F0F0;
   --md-sys-color-surface-variant: #282828;
   --md-sys-color-on-surface-variant: #B3B3B3;
-  
+
   --md-sys-color-surface-container-lowest: #0B0B0B;
   --md-sys-color-surface-container-low: #1C1C1C;
   --md-sys-color-surface-container: #222222;
   --md-sys-color-surface-container-high: #2C2C2C;
   --md-sys-color-surface-container-highest: #383838;
-  
+
   --md-sys-color-outline: #73777F;
   --md-sys-color-outline-variant: #43474E;
-  
+
   --md-sys-color-error: #FFB4AB;
   --md-sys-color-on-error: #690005;
   --md-sys-color-error-container: #93000A;
   --md-sys-color-on-error-container: #FFDAD6;
-  
+
   --md-sys-color-success: #81C784;
   --md-sys-color-on-success: #00390B;
   --md-sys-color-success-container: #005317;
@@ -48,7 +51,7 @@
 
   /* Typography */
   --md-sys-typescale-font: 'Outfit', system-ui, -apple-system, sans-serif;
-  
+
   /* Transitions */
   --md-transition-duration: 0.25s;
   --md-transition-timing: cubic-bezier(0.2, 0, 0, 1);
@@ -86,7 +89,7 @@ a:hover {
 
 .main-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -133,7 +136,7 @@ header h1 span {
   background: transparent;
   cursor: pointer;
   transition: background-color var(--md-transition-duration) var(--md-transition-timing),
-              color var(--md-transition-duration) var(--md-transition-timing);
+    color var(--md-transition-duration) var(--md-transition-timing);
 }
 
 .icon-btn:hover {
@@ -228,8 +231,8 @@ header h1 span {
   font-family: var(--md-sys-typescale-font);
   font-size: 0.95rem;
   transition: border-color var(--md-transition-duration) var(--md-transition-timing),
-              background-color var(--md-transition-duration) var(--md-transition-timing),
-              box-shadow var(--md-transition-duration) var(--md-transition-timing);
+    background-color var(--md-transition-duration) var(--md-transition-timing),
+    box-shadow var(--md-transition-duration) var(--md-transition-timing);
 }
 
 .form-field input[type="text"]:focus,
@@ -270,14 +273,15 @@ header h1 span {
   cursor: pointer;
   text-decoration: none;
   transition: background-color var(--md-transition-duration) var(--md-transition-timing),
-              transform 0.1s ease,
-              box-shadow var(--md-transition-duration) var(--md-transition-timing);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transform 0.1s ease,
+    box-shadow var(--md-transition-duration) var(--md-transition-timing);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .btn:hover {
-  background-color: #22d360; /* Lighten green slightly */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  background-color: #22d360;
+  /* Lighten green slightly */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   text-decoration: none;
 }
 
@@ -356,7 +360,8 @@ table {
   text-align: left;
 }
 
-th, td {
+th,
+td {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--md-sys-color-surface-variant);
   font-size: 0.92rem;
@@ -383,7 +388,8 @@ tr:hover td {
 pre.log {
   background-color: var(--md-sys-color-surface-container-lowest);
   border: 1px solid var(--md-sys-color-outline-variant);
-  color: #a7f3d0; /* Soft terminal green */
+  color: #a7f3d0;
+  /* Soft terminal green */
   padding: 1.25rem;
   border-radius: 12px;
   max-height: 320px;
@@ -431,14 +437,14 @@ pre.log::-webkit-scrollbar-thumb:hover,
   body {
     padding: 1rem;
   }
-  
+
   header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
     margin-bottom: 1rem;
   }
-  
+
   .header-actions {
     width: 100%;
     justify-content: flex-end;
@@ -449,25 +455,31 @@ pre.log::-webkit-scrollbar-thumb:hover,
     border: none;
     border-radius: 0;
   }
-  
+
   /* Force tables to stack cards on mobile */
-  table, thead, tbody, th, td, tr {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
     display: block;
   }
-  
+
   thead {
-    display: none; /* Hide header completely on mobile */
+    display: none;
+    /* Hide header completely on mobile */
   }
-  
+
   tr {
     margin-bottom: 1rem;
     border: 1px solid var(--md-sys-color-surface-variant);
     border-radius: 16px;
     background-color: var(--md-sys-color-surface-container-low);
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   tr:last-child {
     margin-bottom: 0;
   }
@@ -475,7 +487,7 @@ pre.log::-webkit-scrollbar-thumb:hover,
   tr:hover td {
     background-color: transparent;
   }
-  
+
   td {
     border-bottom: 1px solid var(--md-sys-color-surface-variant);
     position: relative;
@@ -491,7 +503,7 @@ pre.log::-webkit-scrollbar-thumb:hover,
     border-bottom: none;
     padding-bottom: 0;
   }
-  
+
   td::before {
     position: absolute;
     left: 0;
@@ -503,19 +515,44 @@ pre.log::-webkit-scrollbar-thumb:hover,
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  
-  /* Bind label strings based on classes */
-  .releases-table td:nth-of-type(1)::before { content: "Artist"; }
-  .releases-table td:nth-of-type(2)::before { content: "Album"; }
-  .releases-table td:nth-of-type(3)::before { content: "Released"; }
-  .releases-table td:nth-of-type(4)::before { content: "Playlist"; }
-  .releases-table td:nth-of-type(5)::before { content: "Action"; }
 
-  .excluded-table td:nth-of-type(1)::before { content: "Artist"; }
-  .excluded-table td:nth-of-type(2)::before { content: "Album"; }
-  .excluded-table td:nth-of-type(3)::before { content: "Reason"; }
-  .excluded-table td:nth-of-type(4)::before { content: "Action"; }
-  
+  /* Bind label strings based on classes */
+  .releases-table td:nth-of-type(1)::before {
+    content: "Artist";
+  }
+
+  .releases-table td:nth-of-type(2)::before {
+    content: "Album";
+  }
+
+  .releases-table td:nth-of-type(3)::before {
+    content: "Released";
+  }
+
+  .releases-table td:nth-of-type(4)::before {
+    content: "Playlist";
+  }
+
+  .releases-table td:nth-of-type(5)::before {
+    content: "Action";
+  }
+
+  .excluded-table td:nth-of-type(1)::before {
+    content: "Artist";
+  }
+
+  .excluded-table td:nth-of-type(2)::before {
+    content: "Album";
+  }
+
+  .excluded-table td:nth-of-type(3)::before {
+    content: "Reason";
+  }
+
+  .excluded-table td:nth-of-type(4)::before {
+    content: "Action";
+  }
+
   /* Centering when table is empty */
   .releases-table tr td[colspan="5"],
   .excluded-table tr td[colspan="4"] {
@@ -524,7 +561,7 @@ pre.log::-webkit-scrollbar-thumb:hover,
     padding: 2rem 1rem;
     color: var(--md-sys-color-on-surface-variant);
   }
-  
+
   .releases-table tr td[colspan="5"]::before,
   .excluded-table tr td[colspan="4"]::before {
     display: none;

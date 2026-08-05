@@ -164,20 +164,20 @@ class RateLimiter:
         self.timestamps = []
         self.last_request_time = None
 
-    def wait_if_needed(self):
+    def wait_if_needed(self, label="request"):
         now = time.time()
         if self.min_interval_seconds and self.last_request_time is not None:
             elapsed = now - self.last_request_time
             if elapsed < self.min_interval_seconds:
                 sleep_time = self.min_interval_seconds - elapsed
-                log(f"  Rate limiter: waiting {sleep_time:.1f}s (min {self.min_interval_seconds}s between requests)")
+                log(f"  Rate limiter: waiting {sleep_time:.1f}s before {label} (min {self.min_interval_seconds}s between requests)")
                 time.sleep(sleep_time)
                 now = time.time()
         self.timestamps = [t for t in self.timestamps if now - t < 60]
         if len(self.timestamps) >= self.max_requests:
             sleep_time = 60 - (now - self.timestamps[0]) + 0.1
             if sleep_time > 0:
-                log(f"  Rate limiter: waiting {sleep_time:.1f}s (hit {self.max_requests}/min limit)")
+                log(f"  Rate limiter: waiting {sleep_time:.1f}s before {label} (hit {self.max_requests}/min limit)")
                 time.sleep(sleep_time)
         self.last_request_time = time.time()
         self.timestamps.append(self.last_request_time)
@@ -202,7 +202,7 @@ def spotify_request(method, token, url, state, params=None, json_data=None, retr
         del state["rate_limits"][category]
         save_state(state)
 
-    rate_limiter.wait_if_needed()
+    rate_limiter.wait_if_needed(f"{method} {url.split('?')[0]}")
     headers = {"Authorization": f"Bearer {token}"}
     if json_data is not None:
         headers["Content-Type"] = "application/json"
