@@ -286,7 +286,7 @@ class _Handler(BaseHTTPRequestHandler):
         # NOTE: /items, not /tracks -- matches Spotify's Feb 2026 migration.
         if path.startswith("/v1/users/") and path.endswith("/playlists"):
             body = json.loads(raw_body or b"{}")
-            playlist_id = f"playlist-{len(self.state.created_playlists) + 1:03d}"
+            playlist_id = f"playlist{len(self.state.created_playlists) + 1:04d}"
             with self.state.lock:
                 self.state.created_playlists.append({
                     "id": playlist_id,

@@ -54,7 +54,7 @@ _SEED_CONFIG = json.loads(CONFIG_FILE.read_text())
 _SEED_STATE = {"artists": {}, "known_albums": {}, "in_progress": None, "rate_limits": {}}
 _SEED_TOKEN = {"refresh_token": "mock-refresh-token"}
 
-MOCK_PLAYLIST_ID = "mock-playlist-id"
+MOCK_PLAYLIST_ID = "mockplaylistid12345"
 TRACK_PREFIX = "spotify:track:album_"
 
 
@@ -101,7 +101,7 @@ class DockerIntegrationTests(unittest.TestCase):
             data={
                 "spotify_client_id": "mock-client-id",
                 "spotify_client_secret": "mock-client-secret",
-                "spotify_playlist_id": "mock-playlist-id",
+                "spotify_playlist_id": "mockplaylistid12345",
                 "interval_days": "3",
                 "min_request_interval": "0",
                 "days_lookback": "365",
@@ -169,8 +169,8 @@ class DockerIntegrationTests(unittest.TestCase):
         self.assertIn("/settings", r.headers["Location"])
 
         config = json.loads(CONFIG_FILE.read_text())
-        self.assertEqual(config["spotify_playlist_id"], "playlist-001")
-        self.assertIn("playlist-001", self._mock_snapshot()["created_playlist_ids"])
+        self.assertEqual(config["spotify_playlist_id"], "playlist0001")
+        self.assertIn("playlist0001", self._mock_snapshot()["created_playlist_ids"])
 
         self._write_seed("app-config.json", _SEED_CONFIG)
 
@@ -404,7 +404,18 @@ class DockerIntegrationTests(unittest.TestCase):
     # --- app state helpers ------------------------------------------------
 
     def _read_state(self):
-        return json.loads(STATE_FILE.read_text())
+        """Read the app's state file, retrying briefly: on Docker bind mounts
+        the app's atomic state replace can transiently make the file invisible
+        or unreadable to a concurrent host-side reader."""
+        deadline = time.time() + 10
+        last_error = None
+        while time.time() < deadline:
+            try:
+                return json.loads(STATE_FILE.read_text())
+            except (PermissionError, FileNotFoundError) as e:
+                last_error = e
+                time.sleep(POLL_INTERVAL)
+        raise last_error
 
     def _write_state(self, state):
         self._write_seed("spotify-state.json", state)

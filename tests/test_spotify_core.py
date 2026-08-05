@@ -385,7 +385,8 @@ class CreatePlaylistTests(unittest.TestCase):
 
     def test_creates_playlist_and_returns_id(self):
         playlist_id = core.create_playlist("mock-access-token", "Test Playlist")
-        self.assertTrue(playlist_id.startswith("playlist-"))
+        self.assertTrue(playlist_id.isalnum())
+        self.assertTrue(playlist_id.startswith("playlist"))
         self.assertEqual(self.server.state.created_playlists[-1]["name"], "Test Playlist")
 
     def test_hits_me_then_users_playlists(self):

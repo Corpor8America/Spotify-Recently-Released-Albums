@@ -363,6 +363,10 @@ def save_state(state):
                 json.dump(state, f, indent=2)
                 f.flush()
                 os.fsync(f.fileno())
+            # mkstemp creates the file mode 0600; widen it so the state file
+            # stays readable/writable by non-root users sharing a bind mount
+            # (e.g. the host user that runs docker compose / integration tests).
+            os.chmod(tmp, 0o644)
             os.replace(tmp, STATE_FILE)  # atomic on POSIX, avoids a torn write on crash
         except BaseException:
             try:
